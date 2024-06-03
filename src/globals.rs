@@ -1,0 +1,116 @@
+use crate::types::Action;
+use crate::types::*;
+use anyhow::{anyhow, Result};
+use ethers::prelude::*;
+use ethers_core::k256::elliptic_curve::SecretKey;
+use ethers_core::k256::Secp256k1;
+use lazy_static::lazy_static;
+use once_cell::sync::OnceCell;
+use sqlx::{Pool, Postgres};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
+use teloxide::types::UserId;
+
+pub struct TokenInfo {}
+pub fn get_token_list() -> HashMap<Address, TokenInfo> {
+    HashMap::new()
+}
+
+lazy_static! {
+
+
+
+    // Function to initialize the TOKEN_LIST
+    pub static ref TOKEN_LIST: Arc<HashMap<Address, TokenInfo>> = {
+        let list = get_token_list();
+        Arc::new(list)
+    };
+
+
+
+    pub static ref POOL: OnceCell<Arc<Pool<Postgres>>> = OnceCell::new();
+
+    // MUTABLE global vars
+
+    pub static ref CHAIN_ON: Arc<Mutex<HashMap<i64, String>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+    pub static ref REFERRAL: Arc<Mutex<HashMap<String, Referrals>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+    pub static ref REFERRED: Arc<Mutex<HashMap<i64, String>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+    pub static ref PASSWD: Arc<Mutex<HashMap<i64, String>>> = Arc::new(Mutex::new(HashMap::new()));
+
+    pub static ref WALLETS_PKEY: Arc<Mutex<HashMap<i64, Vec<SecretKey<Secp256k1>>>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+    pub static ref REPLY_ACTION: Arc<Mutex<HashMap<i64, Action>>> =
+        Arc::new(Mutex::new(HashMap::new()));
+}
+
+impl CHAIN_ON {
+    pub fn get_result_for_user_id(&self, user_id: UserId) -> Result<String> {
+        let map = self
+            .lock()
+            .map_err(|_| anyhow!("Couldn't unwrap chain  from{}", user_id.0))?;
+        Ok(map
+            .get(&(user_id.0 as i64))
+            .ok_or(anyhow!("Couldn't acces to chain of user : {}", user_id))?
+            .clone())
+    }
+}
+
+impl WALLETS_PKEY {
+    pub fn get_result(&self, user_id: UserId) -> anyhow::Result<Vec<SecretKey<Secp256k1>>> {
+        let parsed_id = user_id.0 as i64;
+        Ok(self
+            .lock()
+            .map_err(|e| {
+                anyhow!(
+                    "Poison lock in Wallet WALLETS_PKEY for {} --> {}",
+                    parsed_id,
+                    e.to_string()
+                )
+            })?
+            .get(&parsed_id)
+            .ok_or(anyhow!("Couldn't access pk for user {}", parsed_id))?
+            .clone())
+    }
+    pub fn get_pk_for_index(
+        &self,
+        user_id: UserId,
+        index: usize,
+    ) -> anyhow::Result<SecretKey<Secp256k1>> {
+        Ok(self
+            .get_result(user_id)?
+            .get(index)
+            .ok_or(anyhow!(
+                "Couldn't access pk {} for user {}",
+                index,
+                user_id.0
+            ))?
+            .to_owned())
+    }
+}
+
+pub fn get_pool() -> Arc<Pool<Postgres>> {
+    POOL.get().expect("Pool has not been initialized").clone()
+}
+
+pub const WHITEPAPER_URL: &str = "https://whitepaper.wagmi.io/info/";
+#[macro_export]
+macro_rules! address {
+    ($expr:expr) => {{
+        Address::from_str($expr).unwrap()
+    }};
+}
+
+// ethers::contract::abigen!(
+//     KYBER_DYNAMIC_ROUTER,
+//     "src/utils/abis/kyber_swap_router.json",
+//     event_derives(serde::Deserialize, serde::Serialize)
+// );
+
+pub const GAS_TOKEN: &str = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+
+pub const DEAD_CALLBACK: &str = "!";

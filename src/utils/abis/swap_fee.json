@@ -1,0 +1,531 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_oneInch",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_router",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_routerETH",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_woofi",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_feeDistributor",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "fromToken",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "ref",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "_dstChainId",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_srcPoolId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_dstPoolId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address payable",
+            "name": "_refundAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_amountLD",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_minAmountLD",
+            "type": "uint256"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "dstGasForCall",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "dstNativeAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes",
+                "name": "dstNativeAddr",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct SwapWithFee.lzTxObj",
+            "name": "_lzTxParams",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_to",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_payload",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct SwapWithFee.BridgeParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "bridge",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "ref",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint16",
+            "name": "_dstChainId",
+            "type": "uint16"
+          },
+          {
+            "internalType": "address payable",
+            "name": "_refundAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "_to",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_amountLD",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_minAmountLD",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct SwapWithFee.BridgeETHParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "bridgeETH",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "ref",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "_refId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address payable",
+            "name": "_to",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "fromToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "bridgeToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "fromAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "minBridgeAmount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct SwapWithFee.SrcInfos",
+            "name": "_srcInfos",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "chainId",
+                "type": "uint16"
+              },
+              {
+                "internalType": "address",
+                "name": "toToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "bridgeToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "minToAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "airdropNativeAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "dstGasForCall",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct SwapWithFee.DstInfos",
+            "name": "_dstInfos",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "swapRouter",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct SwapWithFee.Src1inch",
+            "name": "_src1inch",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "swapRouter",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "data",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct SwapWithFee.Dst1inch",
+            "name": "_dst1inch",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct SwapWithFee.woofiParams",
+        "name": "_params",
+        "type": "tuple"
+      }
+    ],
+    "name": "crossSwap",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "feeDistributor",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "feeUnits",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "tokenAddresses",
+        "type": "address[]"
+      }
+    ],
+    "name": "getBalances",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "oneInch",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "refValue",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "router",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "routerETH",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_feeDistributor",
+        "type": "address"
+      }
+    ],
+    "name": "setFeeDistributor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "fromToken",
+        "type": "address"
+      },
+      {
+        "internalType": "contract IERC20",
+        "name": "toToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "ref",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "swap",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "woofi",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
+  }
+]
