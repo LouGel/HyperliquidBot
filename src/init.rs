@@ -37,6 +37,7 @@ pub async fn update_token_list() -> Result<()> {
 
     let spot_tokens = client.fetch_spot_meta().await?;
     let tokens = spot_tokens.tokens;
+    debug!("TOKENS : {:#?}", tokens);
     let mut token_map = TOKEN_LIST.lock().unwrap();
 
     for token in tokens {
