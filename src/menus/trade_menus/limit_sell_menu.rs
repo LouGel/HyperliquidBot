@@ -17,8 +17,6 @@ use anyhow::anyhow;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, User};
 
 pub async fn sell_limit_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
-    let chain_name = CHAIN_ON.get_result_for_user_id(user.id)?;
-
     let orders = Vec::new();
     // fetch_orders_by_user_id(user.id, crate::hyperliquid_api::OrderStatus::Active).await?;
     let pks = WALLETS_PKEY.get_result(user.id)?;

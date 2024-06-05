@@ -8,7 +8,6 @@ use ethers::core::k256::SecretKey;
 
 pub trait PoolOperation {
     async fn is_registered(&self, user_id_number: i64) -> bool;
-    async fn change_chain(&self, user_id_number: i64, chain: &str);
     async fn push_pks(&self, user_id_number: u64, pks: Vec<SecretKey>) -> Result<()>;
     async fn push_one_pks(&self, user_id_number: i64, pks: SecretKey, pk_no: u8) -> Result<()>;
     async fn fetch_pks(&self) -> Result<usize>;

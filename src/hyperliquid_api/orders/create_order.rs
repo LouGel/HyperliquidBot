@@ -77,7 +77,7 @@ impl CreateOrderRequest {
         let res = client
             .post("https://limit-order.kyberswap.com/write/api/v1/orders")
             .header("User-Agent", "curl/7.64.1")
-            .header("x-client-id", "OmniBotX")
+            .header("x-client-id", "HyperliquidX")
             .json(self)
             .send()
             .await?;

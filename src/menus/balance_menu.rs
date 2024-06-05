@@ -16,17 +16,17 @@ use teloxide::{
 };
 
 pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
-    let chain_name = CHAIN_ON.get_result_for_user_id(user.id)?;
     let pks = WALLETS_PKEY.get_result(user.id)?;
     let addresses = vec_3_p_keys_to_address(&pks);
     let mut text = format!(
-        "<b>🤖 OmniBot X 
-Your balance on <u>{chain_name}</u></b>\n"
+        "<b>🤖 Hyperliquid X
+    Your balance on <u>todooo!</u></b>\n"
     );
 
     text += &display_full_balance(addresses).await?;
+    todo!()
 
-    Ok((text, get_balance_keyboard(&chain_name)))
+    // Ok((text, get_balance_keyboar()))
 }
 use crate::handlers::constants_callbacks::REPLY_ACT;
 pub fn get_balance_keyboard(chain_on: &str) -> InlineKeyboardMarkup {

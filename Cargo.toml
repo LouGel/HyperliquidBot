@@ -1,5 +1,5 @@
 [package]
-name = "omni_bot_rust"
+name = "hyperliquid_bot_rust"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,10 +11,11 @@ log = "0.4"
 pretty_env_logger = "0.5"
 tokio = { version =  "1.8", features = ["full"] }
 dotenv = "0.15"
-ethers = "2.0.11"
+
 openssl = "0.10.62"
 lazy_static = "1.4.0"
 sqlx = { version = "0.5.0", features = ["postgres", "runtime-tokio-native-tls", "macros"] }
+ethers = {version = "2.0.14", features = ["eip712", "abigen"]}
 ethers-core = "2.0.11"
 ethers-signers = "2.0.13"
 hex = "0.4.3"
@@ -39,6 +40,7 @@ ethers-contract = "2.0.13"
 ethers_signer = "0.2.2"
 ahash = { version = "0.8.11" }
 futures = "0.3.30"
+# hyperliquid_rust_sdk = "0.4.0"
 
 # [patch.crates-io]
 # ahash = { version = "0.7.7" } 

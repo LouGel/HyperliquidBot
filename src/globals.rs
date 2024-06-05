@@ -1,3 +1,4 @@
+use crate::types::hyperliquid_client::*;
 use crate::types::Action;
 use crate::types::*;
 use anyhow::{anyhow, Result};
@@ -13,51 +14,34 @@ use std::{
 };
 use teloxide::types::UserId;
 
-pub struct TokenInfo {}
-pub fn get_token_list() -> HashMap<Address, TokenInfo> {
+pub fn get_token_list() -> HashMap<String, TokenInfo> {
     HashMap::new()
+}
+
+pub fn toggle_test() {
+    let mut network = NETWORK.lock().unwrap();
+    *network = match *network {
+        HyperLiquidNetwork::Mainnet => HyperLiquidNetwork::Testnet,
+        HyperLiquidNetwork::Testnet => HyperLiquidNetwork::Mainnet,
+    };
 }
 
 lazy_static! {
 
-
-
     // Function to initialize the TOKEN_LIST
-    pub static ref TOKEN_LIST: Arc<HashMap<Address, TokenInfo>> = {
+    pub static ref TOKEN_LIST: Arc<HashMap<String, TokenInfo>> = {
         let list = get_token_list();
         Arc::new(list)
     };
-
-
-
     pub static ref POOL: OnceCell<Arc<Pool<Postgres>>> = OnceCell::new();
 
     // MUTABLE global vars
-
-    pub static ref CHAIN_ON: Arc<Mutex<HashMap<i64, String>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-    pub static ref REFERRAL: Arc<Mutex<HashMap<String, Referrals>>> =
-        Arc::new(Mutex::new(HashMap::new()));
-    pub static ref REFERRED: Arc<Mutex<HashMap<i64, String>>> =
-        Arc::new(Mutex::new(HashMap::new()));
+    pub static ref NETWORK: Mutex<HyperLiquidNetwork> = Mutex::new(HyperLiquidNetwork::Mainnet);
     pub static ref PASSWD: Arc<Mutex<HashMap<i64, String>>> = Arc::new(Mutex::new(HashMap::new()));
-
     pub static ref WALLETS_PKEY: Arc<Mutex<HashMap<i64, Vec<SecretKey<Secp256k1>>>>> =
         Arc::new(Mutex::new(HashMap::new()));
     pub static ref REPLY_ACTION: Arc<Mutex<HashMap<i64, Action>>> =
         Arc::new(Mutex::new(HashMap::new()));
-}
-
-impl CHAIN_ON {
-    pub fn get_result_for_user_id(&self, user_id: UserId) -> Result<String> {
-        let map = self
-            .lock()
-            .map_err(|_| anyhow!("Couldn't unwrap chain  from{}", user_id.0))?;
-        Ok(map
-            .get(&(user_id.0 as i64))
-            .ok_or(anyhow!("Couldn't acces to chain of user : {}", user_id))?
-            .clone())
-    }
 }
 
 impl WALLETS_PKEY {
@@ -104,13 +88,5 @@ macro_rules! address {
         Address::from_str($expr).unwrap()
     }};
 }
-
-// ethers::contract::abigen!(
-//     KYBER_DYNAMIC_ROUTER,
-//     "src/utils/abis/kyber_swap_router.json",
-//     event_derives(serde::Deserialize, serde::Serialize)
-// );
-
-pub const GAS_TOKEN: &str = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 
 pub const DEAD_CALLBACK: &str = "!";

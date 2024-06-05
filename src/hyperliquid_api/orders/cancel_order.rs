@@ -25,7 +25,7 @@ impl CancelOrderSignRequest {
         let res = client
             .post("https://limit-order.kyberswap.com/write/api/v1/orders/cancel-sign")
             .header("User-Agent", "curl/7.64.1")
-            .header("x-client-id", "OmniBotX")
+            .header("x-client-id", "HyperliquidX")
             .json(self)
             .send()
             .await
@@ -77,7 +77,7 @@ impl CancelOrderRequest {
             .post("https://limit-order.kyberswap.com/write/api/v1/orders/cancel")
             .json(&self)
             .header("User-Agent", "curl/7.64.1")
-            .header("x-client-id", "OmniBotX")
+            .header("x-client-id", "HyperliquidX")
             .send()
             .await
             .map_err(|e| anyhow!("Error in get signature {}", e.to_string()))?;

@@ -16,7 +16,7 @@ pub fn pks(_bot: &Bot, user_id_number: i64) -> Option<(String, InlineKeyboardMar
     };
     let wallets_addresses = vec_3_p_keys_to_address(&wallets_pks);
     let text = format!(
-        "<b>🤖 OmniBot X</b>\n\n\
+        "<b>🤖 Hyperliquid X</b>\n\n\
         <b>═══ Your Wallets ═══</b> \n\n\
         <b>👝 Wallet⬩w1</b>\n\
         <b>Address: <code>{}</code></b>\n\

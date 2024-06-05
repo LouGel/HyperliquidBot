@@ -30,10 +30,7 @@ pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> 
 
                 match opts[0] {
                     SIMPLE_MENU => simple_menus_handler(&bot, user, opts, msg_from).await,
-                    UPDATE_CHAIN => {
-                        get_pool().change_chain(user.id.0 as i64, opts[2]).await;
-                        simple_menus_handler(&bot, user, opts, msg_from).await
-                    }
+
                     REFRESH_MENU => refresh_menu(&bot, user, opts, msg_from).await,
                     REPLY_ACT => {
                         if let Ok(reply_action) = ReplyAction::from_str(opts[1], &msg_from) {

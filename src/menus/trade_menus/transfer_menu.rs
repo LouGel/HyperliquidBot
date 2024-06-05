@@ -108,7 +108,7 @@
 //     gas_price: &str,
 // ) -> String {
 //     let intro = format!(
-//         "<b>🤖 OmniBot X</b>\n
+//         "<b>🤖 Hyperliquid X</b>\n
 //         <u>{}</u>\n",
 //         chain_name
 //     );

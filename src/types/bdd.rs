@@ -32,30 +32,30 @@ impl DBTable {
 
         Ok(rows)
     }
-    // pub async fn get_table_by_user_id<T>(
-    //     pool: &Pool<Postgres>,
-    //     user_id_number: i64,
-    //     _info_name: &str,
-    // ) -> Result<T>
-    // where
-    //     T: for<'r> FromRow<'r, PgRow> + Send + Sync + Unpin,
-    // {
-    //     let full_name = std::any::type_name::<T>();
-    //     let table_name = full_name.split("::").last().unwrap().to_lowercase();
-    //     info!("table_name ==> {}", table_name);
+    pub async fn get_table_by_user_id<T>(
+        pool: &Pool<Postgres>,
+        user_id_number: i64,
+        _info_name: &str,
+    ) -> Result<T>
+    where
+        T: for<'r> FromRow<'r, PgRow> + Send + Sync + Unpin,
+    {
+        let full_name = std::any::type_name::<T>();
+        let table_name = full_name.split("::").last().unwrap().to_lowercase();
+        info!("table_name ==> {}", table_name);
 
-    //     let query = format!(
-    //         "SELECT * FROM {} WHERE userid = {}",
-    //         table_name, user_id_number
-    //     );
+        let query = format!(
+            "SELECT * FROM {} WHERE userid = {}",
+            table_name, user_id_number
+        );
 
-    //     let rows = sqlx::query_as::<_, T>(&query)
-    //         .bind(user_id_number)
-    //         .fetch_one(pool)
-    //         .await?;
+        let rows = sqlx::query_as::<_, T>(&query)
+            .bind(user_id_number)
+            .fetch_one(pool)
+            .await?;
 
-    //     Ok(rows)
-    // }
+        Ok(rows)
+    }
     pub async fn insert_table<T>(
         pool: &Pool<Postgres>,
         infos_name: &str,
@@ -107,30 +107,14 @@ pub struct Pks {
     pub pk2: String,
     pub pk3: String,
 }
-#[derive(Serialize, Deserialize, FromRow, Debug)]
 
-pub struct Basics {
-    pub userid: i64,
-    pub chain: String,
-}
 #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
 
 pub struct Login {
     pub userid: i64,
     pub pass: String,
 }
-#[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
 
-pub struct Referred {
-    pub userid: i64,
-    pub refaddress: String,
-}
-#[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
-
-pub struct Referrals {
-    pub username: String,
-    pub refaddress: String,
-}
 #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
 
 pub struct Tokens {
@@ -168,63 +152,64 @@ pub struct Selltokens {
     pub selectslippage: f64,
     pub gasestimation: String,
 }
-#[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
-
-pub struct Buylimit {
-    pub userid: i64,
-    pub lastmenuid: i32,
-    pub wallet: i32,
-    pub selectamount: f64,
-    pub ercaddress: String,
-    pub limitorder: f64,
-    pub expirationhour: i32,
-}
-#[derive(FromRow, Debug, Clone)]
-
-pub struct Buyorders {
-    pub id: i64,
-    pub userid: i64,
-    pub wallet: i32,
-    pub symbol: String,
-    pub makerasset: String,
-    pub takerasset: String,
-    pub amountin: String,
-    pub amountout: String,
-    pub outoecimals: i32,
-    pub timed: chrono::NaiveDateTime,
-    pub salt: String,
-    pub expiration: String,
-}
-#[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
-
-pub struct Selllimit {
-    pub userid: i64,
-    pub lastmenuid: i32,
-    pub wallet: i32,
-    pub selectamount: f64,
-    pub ercaddress: String,
-    pub limitorder: f64,
-    pub expirationhour: i32,
-}
-#[derive(FromRow, Debug, Clone)]
-
-pub struct Sellorders {
-    pub id: i64,
-    pub userid: i64,
-    pub wallet: i32,
-    pub symbol: String,
-    pub makerasset: String,
-    pub takerasset: String,
-    pub amountin: String,
-    pub amountout: String,
-    pub outdecimals: i32,
-    pub timed: chrono::NaiveDateTime,
-    pub salt: String,
-    pub expiration: String,
-}
 
 #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
 pub struct Registered {
     pub userid: Option<i64>,
     pub firstmsgid: Option<i64>,
 }
+
+// #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
+
+// pub struct Buylimit {
+//     pub userid: i64,
+//     pub lastmenuid: i32,
+//     pub wallet: i32,
+//     pub selectamount: f64,
+//     pub ercaddress: String,
+//     pub limitorder: f64,
+//     pub expirationhour: i32,
+// }
+// #[derive(FromRow, Debug, Clone)]
+
+// pub struct Buyorders {
+//     pub id: i64,
+//     pub userid: i64,
+//     pub wallet: i32,
+//     pub symbol: String,
+//     pub makerasset: String,
+//     pub takerasset: String,
+//     pub amountin: String,
+//     pub amountout: String,
+//     pub outoecimals: i32,
+//     pub timed: chrono::NaiveDateTime,
+//     pub salt: String,
+//     pub expiration: String,
+// }
+// #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
+
+// pub struct Selllimit {
+//     pub userid: i64,
+//     pub lastmenuid: i32,
+//     pub wallet: i32,
+//     pub selectamount: f64,
+//     pub ercaddress: String,
+//     pub limitorder: f64,
+//     pub expirationhour: i32,
+// }
+// #[derive(FromRow, Debug, Clone)]
+
+// pub struct Sellorders {
+//     pub id: i64,
+//     pub userid: i64,
+//     pub wallet: i32,
+//     pub symbol: String,
+//     pub makerasset: String,
+//     pub takerasset: String,
+//     pub amountin: String,
+//     pub amountout: String,
+//     pub outdecimals: i32,
+//     pub timed: chrono::NaiveDateTime,
+//     pub salt: String,
+//     pub expiration: String,
+// }

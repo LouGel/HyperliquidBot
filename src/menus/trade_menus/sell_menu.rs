@@ -11,8 +11,6 @@ use ethers::utils::{format_units, parse_units};
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, User};
 
 pub async fn sell_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
-    let chain_name = CHAIN_ON.get_result_for_user_id(user.id)?;
-
     let total_gas_price = "-";
 
     let supplement_fee = "-".to_owned();
@@ -20,7 +18,6 @@ pub async fn sell_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMar
     let pks = WALLETS_PKEY.get_result(user.id)?;
 
     let text = format_sell_message(
-        &chain_name,
         &supplement_fee,
         Some(display_balance(vec_3_p_keys_to_address(&pks)).await?),
         total_gas_price,
@@ -64,7 +61,6 @@ pub async fn sell_menu_from_keyboard(
     // if let Some(params) = create_kyber_object(user, sell_object).await {
 
     let text = format_sell_message(
-        &chain,
         &supplement_fee,
         Some(display_balance(vec_3_p_keys_to_address(&pks)).await?),
         &total_gas_price,
@@ -99,16 +95,15 @@ pub fn get_values_from_sell_markup(keyboard: InlineKeyboardMarkup) -> Result<Sel
 }
 
 fn format_sell_message(
-    chain_name: &str,
     supplement_fee: &str,
     array_of_balance: Option<String>,
     total_gas_price: &str,
 ) -> String {
     let intro = format!(
         "<b>➖ Sell Tokens\n\
-Sell any cryptocurrency on your balance on the <u>{}</u>.\n\
+Sell any cryptocurrency on your balance on the HyperLiquid.\n\
 To associate a token with a number, go to Trade > Balances, then associate the token address with the number of your choice.</b>\n\
-<em>🔍 Trade: swaps are managed by Kyberswap, an aggregator guaranteeing you the best prices.</em>\n\n",chain_name );
+<em>🔍 Trade: swaps are managed by Kyberswap, an aggregator guaranteeing you the best prices.</em>\n\n" );
 
     let outro = format!(
         "

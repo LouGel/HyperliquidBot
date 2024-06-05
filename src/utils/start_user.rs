@@ -32,21 +32,5 @@ pub async fn create_user(msg: &Message) -> Option<()> {
         return None;
     }
 
-    if let Err(e) = DBTable::insert_table::<Basics>(
-        &pool,
-        "userid,chain",
-        &format!("{},'{}'", user_id_number, "ethereum".to_owned()),
-    )
-    .await
-    {
-        error!("Error in start : {:?} \n for user {}", e, user_id_number);
-        return None;
-    }
-
-    {
-        let mut chain_map = CHAIN_ON.lock().unwrap();
-        chain_map.insert(user_id_number, "ethereum".to_owned())?;
-    }
-
     Some(())
 }

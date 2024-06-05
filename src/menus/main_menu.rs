@@ -6,8 +6,6 @@ use ethers::utils::format_units;
 use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup, UserId};
 use tokio::join;
 pub async fn main_menu(user_id: UserId) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
-    let chain = CHAIN_ON.get_result_for_user_id(user_id)?;
-
     let user_pks = WALLETS_PKEY.get_result(user_id)?;
     let user_addresses = vec_3_p_keys_to_address(&user_pks);
     let gas_price = "123".to_owned();
@@ -26,7 +24,7 @@ fn format_text_main_menu(
     balances_raw: Vec<U256>,
 ) -> anyhow::Result<String> {
     let mut text = format!(
-        "<b>🤖 OmniBot X - Your Ultimate Crypto Companion\n\n\
+        "<b>🤖 Hyperliquid X - Your Ultimate Crypto Companion\n\n\
         ═══ Your Wallets ═══</b> \n\n\
         "
     );

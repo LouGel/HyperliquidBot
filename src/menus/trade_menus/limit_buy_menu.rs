@@ -21,7 +21,6 @@ use teloxide::{
 };
 
 pub async fn limit_buy_menu(user_id: UserId) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
-    let chain_name = CHAIN_ON.get_result_for_user_id(user_id)?;
     let p_ks = WALLETS_PKEY.get_result(user_id)?;
     let addresses = vec_3_p_keys_to_address(&p_ks);
     let ret = Vec::new();

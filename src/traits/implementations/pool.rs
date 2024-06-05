@@ -24,17 +24,7 @@ impl PoolOperation for Pool<Postgres> {
         .unwrap_or(false);
         exists
     }
-    //////////////////////////////////////////////////////
-    async fn change_chain(&self, user_id_number: i64, chain: &str) {
-        let infos_values = format!("chain = '{chain}'");
-        if let Err(e) = DBTable::update_table::<Basics>(self, user_id_number, &infos_values).await {
-            error!("Change chain , could not push to db {:?}", e);
-            return;
-        }
 
-        let mut basic_user = CHAIN_ON.lock().unwrap();
-        basic_user.insert(user_id_number, chain.to_string());
-    }
     //////////////////////////////////////////////////////
 
     async fn fetch_pks(&self) -> Result<usize> {
