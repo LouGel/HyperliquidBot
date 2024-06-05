@@ -42,7 +42,7 @@ impl HyperLiquidNetwork {
     }
 }
 #[derive(Serialize)]
-struct HyperLiquidClient {
+pub struct HyperLiquidClient {
     url: String,
 }
 
@@ -54,15 +54,15 @@ struct SpotMetaRequest {
     request_type: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TokenInfo {
-    name: String,
-    sz_decimals: u32,
-    wei_decimals: u32,
-    index: u32,
-    token_id: Address,
-    is_canonical: bool,
+    pub name: String,
+    pub sz_decimals: u32,
+    pub wei_decimals: u32,
+    pub index: u32,
+    pub token_id: Address,
+    pub is_canonical: bool,
 }
 
 #[derive(Deserialize, Debug)]
@@ -76,8 +76,8 @@ struct UniverseInfo {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-struct SpotMetaResponse {
-    tokens: Vec<TokenInfo>,
+pub struct SpotMetaResponse {
+    pub tokens: Vec<TokenInfo>,
     universe: Vec<UniverseInfo>,
 }
 

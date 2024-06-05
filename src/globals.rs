@@ -14,9 +14,7 @@ use std::{
 };
 use teloxide::types::UserId;
 
-pub fn get_token_list() -> HashMap<String, TokenInfo> {
-    HashMap::new()
-}
+// pub async fn get_token_list() -> Result {}
 
 pub fn toggle_test() {
     let mut network = NETWORK.lock().unwrap();
@@ -29,10 +27,7 @@ pub fn toggle_test() {
 lazy_static! {
 
     // Function to initialize the TOKEN_LIST
-    pub static ref TOKEN_LIST: Arc<HashMap<String, TokenInfo>> = {
-        let list = get_token_list();
-        Arc::new(list)
-    };
+    pub static ref TOKEN_LIST: Arc<Mutex<HashMap<String, Arc<TokenInfo>>>> = Arc::new(Mutex::new(HashMap::new()));
     pub static ref POOL: OnceCell<Arc<Pool<Postgres>>> = OnceCell::new();
 
     // MUTABLE global vars

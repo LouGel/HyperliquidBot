@@ -1,5 +1,7 @@
 use crate::*;
 
+use crate::globals::TOKEN_LIST;
+use anyhow::Result;
 use sqlx::pool::Pool;
 use sqlx::Postgres;
 use tokio::time::{self, Duration};
@@ -22,9 +24,27 @@ pub async fn init_omni_bot() {
 
         info!("Fetched {} login table", login_tables.len());
     }
+    update_token_list()
+        .await
+        .map_err(|e| error!("Error while init : {:?}", e))
+        .unwrap();
 
     time::sleep(Duration::from_millis(1000)).await;
     info!("Bot is Initiated")
+}
+pub async fn update_token_list() -> Result<()> {
+    let client = HyperLiquidNetwork::get_client();
+
+    let spot_tokens = client.fetch_spot_meta().await?;
+    let tokens = spot_tokens.tokens;
+    let mut token_map = TOKEN_LIST.lock().unwrap();
+
+    for token in tokens {
+        let token_arc = Arc::new(token.clone());
+        token_map.insert(token.name.clone(), Arc::clone(&token_arc));
+        token_map.insert(token.token_id.to_full_string(), token_arc);
+    }
+    Ok(())
 }
 
 pub async fn init_pool(database_url: String) {
