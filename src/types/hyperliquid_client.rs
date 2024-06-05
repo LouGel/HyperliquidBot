@@ -61,7 +61,7 @@ pub struct TokenInfo {
     pub sz_decimals: u32,
     pub wei_decimals: u32,
     pub index: u32,
-    pub token_id: Address,
+    pub token_id: String,
     pub is_canonical: bool,
 }
 
@@ -78,7 +78,7 @@ struct UniverseInfo {
 #[serde(rename_all = "camelCase")]
 pub struct SpotMetaResponse {
     pub tokens: Vec<TokenInfo>,
-    universe: Vec<UniverseInfo>,
+    // universe: Vec<UniverseInfo>,
 }
 
 impl HyperLiquidClient {
