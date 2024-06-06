@@ -7,9 +7,10 @@ use teloxide::prelude::*;
 
 pub async fn create_user(msg: &Message) -> Option<()> {
     let pool = get_pool();
-    let user_id_number = msg.from().unwrap().id.0 as i64;
+    let user_id = msg.from().unwrap().id;
+    let user_id_number = user_id.0 as i64;
     debug!("User_id {}", user_id_number);
-    if pool.is_registered(user_id_number).await {
+    if is_registered(&user_id) {
         return None;
     }
     //// Register

@@ -17,12 +17,11 @@ pub async fn message_handler(bot: Bot, msg: Message) -> anyhow::Result<()> {
     let user = get_user_from_msg(&msg)?;
     if !is_registered(&user.id) {
         create_user(&msg).await;
-        bot.send_message(
-            user.id,
-            "Successfully registered (or some other success message)",
-        )
-        .await?;
+        bot.send_message(user.id, "Successfully registered ")
+            .await?;
     } else if let MessageKind::Common(msg_common) = msg.clone().kind {
+        debug!("Here");
+
         if let Some(reply_to) = msg_common.reply_to_message {
             parse_message_reply(&bot, &msg, &user, &reply_to)?;
         }

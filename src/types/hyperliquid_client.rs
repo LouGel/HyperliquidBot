@@ -80,23 +80,25 @@ pub struct SpotMetaResponse {
     pub tokens: Vec<TokenInfo>,
     // universe: Vec<UniverseInfo>,
 }
+#[derive(Serialize)]
+pub struct BalancesRequest {
+    #[serde(rename = "type")]
+    request_type: String,
+    user: String,
+}
 
+#[derive(Deserialize, Debug, Default)]
+pub struct Balance {
+    pub coin: String,
+    pub hold: String,
+    pub total: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct BalancesResponse {
+    pub balances: Vec<Balance>,
+}
 impl HyperLiquidClient {
-    pub async fn fetch_open_orders_for_addresses(
-        self,
-        addresses: Vec<Address>,
-    ) -> Result<Vec<OpenOrdersResponse>> {
-        let client = Client::new();
-        let futures = addresses
-            .iter()
-            .map(|&address| self.fetch_open_orders(&client, address));
-        let results = join_all(futures).await;
-        let mut orders_responses = Vec::new();
-        for result in results {
-            orders_responses.push(result?);
-        }
-        todo!()
-    }
     pub async fn fetch_spot_meta(&self) -> Result<SpotMetaResponse> {
         let client = Client::new();
         let request_body = SpotMetaRequest {
@@ -114,6 +116,64 @@ impl HyperLiquidClient {
                 response.status()
             ))
         }
+    }
+    pub async fn fetch_spot_balances(
+        &self,
+        client: &Client,
+        address: Address,
+    ) -> Result<Vec<Balance>> {
+        let request_body = BalancesRequest {
+            request_type: "spotClearinghouseState".to_string(),
+            user: address.to_full_string(),
+        };
+
+        let response = client
+            .post(&self.url)
+            .header("Content-Type", "application/json")
+            .json(&request_body)
+            .send()
+            .await?;
+
+        if response.status().is_success() {
+            let balances = response.json::<BalancesResponse>().await?;
+            Ok(balances.balances)
+        } else {
+            Err(anyhow!(
+                "Failed to get balances for {}: {}",
+                address,
+                response.status()
+            ))
+        }
+    }
+    pub async fn fetch_spot_balance_for_addresses(
+        self,
+        addresses: &Vec<Address>,
+    ) -> Result<Vec<Vec<Balance>>> {
+        let client = Client::new();
+        let futures = addresses
+            .iter()
+            .map(|&address| self.fetch_spot_balances(&client, address));
+        let mut orders_responses = Vec::new();
+        for result in join_all(futures).await {
+            orders_responses.push(result?);
+        }
+        Ok(orders_responses)
+    }
+
+    pub async fn fetch_open_orders_for_addresses(
+        self,
+        addresses: Vec<Address>,
+    ) -> Result<Vec<OpenOrdersResponse>> {
+        let client = Client::new();
+        let futures = addresses
+            .iter()
+            .map(|&address| self.fetch_open_orders(&client, address));
+        let results = join_all(futures).await;
+        let mut orders_responses = Vec::new();
+        for result in results {
+            orders_responses.push(result?);
+        }
+        todo!()
     }
     async fn fetch_open_orders(
         &self,

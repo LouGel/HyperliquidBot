@@ -12,18 +12,18 @@ use tokio::join;
 #[async_trait]
 impl PoolOperation for Pool<Postgres> {
     //////////////////////////////////////////////////////
-    async fn is_registered(&self, user_id_number: i64) -> bool {
-        let exists = sqlx::query!(
-            "SELECT EXISTS(SELECT 1 FROM registered WHERE userid = $1)",
-            user_id_number
-        )
-        .fetch_one(self)
-        .await
-        .expect("error in is registered")
-        .exists
-        .unwrap_or(false);
-        exists
-    }
+    // async fn is_registered(&self, user_id_number: i64) -> bool {
+    //     let exists = sqlx::query!(
+    //         "SELECT EXISTS(SELECT 1 FROM registered WHERE userid = $1)",
+    //         user_id_number
+    //     )
+    //     .fetch_one(self)
+    //     .await
+    //     .expect("error in is registered")
+    //     .exists
+    //     .unwrap_or(false);
+    //     exists
+    // }
 
     //////////////////////////////////////////////////////
 
@@ -143,32 +143,32 @@ impl PoolOperation for Pool<Postgres> {
     //     info!("Token pushed [\n{}\n{}\n]", info_name, values);
     //     Ok(symbol)
     // }
-    async fn fetch_token_by_symbol_and_chain_id(
-        &self,
-        symbol: &str,
-        chain_id: i32,
-    ) -> Result<Option<Tokens>> {
-        let query = "SELECT * FROM tokens WHERE symbol = $1 AND chainid = $2";
-        let rows = sqlx::query_as::<_, Tokens>(&query)
-            .bind(symbol)
-            .bind(chain_id)
-            .fetch_all(self)
-            .await?;
+    // async fn fetch_token_by_symbol_and_chain_id(
+    //     &self,
+    //     symbol: &str,
+    //     chain_id: i32,
+    // ) -> Result<Option<Tokens>> {
+    //     let query = "SELECT * FROM tokens WHERE symbol = $1 AND chainid = $2";
+    //     let rows = sqlx::query_as::<_, Tokens>(&query)
+    //         .bind(symbol)
+    //         .bind(chain_id)
+    //         .fetch_all(self)
+    //         .await?;
 
-        if rows.len() > 1 {
-            Err(anyhow!("There is {} in tokens by symbol a", rows.len()))
-        } else {
-            Ok(rows.get(0).cloned())
-        }
-    }
-    async fn get_tokens_by_chain(&self, chain_id: i32) -> Result<Vec<Tokens>> {
-        let query = "SELECT * FROM tokens WHERE chainid = $1";
-        let rows = sqlx::query_as::<_, Tokens>(&query)
-            .bind(chain_id)
-            .fetch_all(self)
-            .await?;
-        Ok(rows)
-    }
+    //     if rows.len() > 1 {
+    //         Err(anyhow!("There is {} in tokens by symbol a", rows.len()))
+    //     } else {
+    //         Ok(rows.get(0).cloned())
+    //     }
+    // }
+    // async fn get_tokens_by_chain(&self, chain_id: i32) -> Result<Vec<Tokens>> {
+    //     let query = "SELECT * FROM tokens WHERE chainid = $1";
+    //     let rows = sqlx::query_as::<_, Tokens>(&query)
+    //         .bind(chain_id)
+    //         .fetch_all(self)
+    //         .await?;
+    //     Ok(rows)
+    // }
 
     // async fn get_token_by_address_and_chain(
     //     &self,

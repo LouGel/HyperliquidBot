@@ -116,44 +116,6 @@ pub struct Login {
 }
 
 #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
-
-pub struct Tokens {
-    pub tokenaddress: String,
-    pub symbol: String,
-    pub decimals: i32,
-    pub chainid: i32,
-}
-#[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
-
-pub struct Buytokens {
-    pub userid: i64,
-    pub privatetx: bool,
-    pub failguard: bool,
-    pub frontrun: bool,
-    pub ercaddress: String,
-    pub lastmenuid: i32,
-    pub wallet: i32,
-    pub selectamount: f64,
-    pub selectslippage: f64,
-    pub selltax: i32,
-    pub buytax: i32,
-    pub gasestimation: String,
-}
-#[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
-
-pub struct Selltokens {
-    pub userid: i64,
-    pub privatetx: bool,
-    pub failguard: bool,
-    pub frontrun: bool,
-    pub lastmenuid: i32,
-    pub wallet: i32,
-    pub selectamount: f64,
-    pub selectslippage: f64,
-    pub gasestimation: String,
-}
-
-#[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
 pub struct Registered {
     pub userid: Option<i64>,
     pub firstmsgid: Option<i64>,
@@ -212,4 +174,34 @@ pub struct Registered {
 //     pub timed: chrono::NaiveDateTime,
 //     pub salt: String,
 //     pub expiration: String,
+// }
+
+// #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
+
+// pub struct Buytokens {
+//     pub userid: i64,
+//     pub privatetx: bool,
+//     pub failguard: bool,
+//     pub frontrun: bool,
+//     pub ercaddress: String,
+//     pub lastmenuid: i32,
+//     pub wallet: i32,
+//     pub selectamount: f64,
+//     pub selectslippage: f64,
+//     pub selltax: i32,
+//     pub buytax: i32,
+//     pub gasestimation: String,
+// }
+// #[derive(Serialize, Deserialize, FromRow, Debug, Clone)]
+
+// pub struct Selltokens {
+//     pub userid: i64,
+//     pub privatetx: bool,
+//     pub failguard: bool,
+//     pub frontrun: bool,
+//     pub lastmenuid: i32,
+//     pub wallet: i32,
+//     pub selectamount: f64,
+//     pub selectslippage: f64,
+//     pub gasestimation: String,
 // }
