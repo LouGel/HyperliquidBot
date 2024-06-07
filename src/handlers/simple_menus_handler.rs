@@ -15,6 +15,7 @@ pub async fn simple_menus_handler(bot: &Bot, user: User, menu: Vec<&str>, msg: M
         IMPORT_MENU => import_wallet_menu(),
         BUY_MENU => buy_menu(user.id, "-".to_string()).await,
         SELL_MENU => sell_menu(&user).await,
+        ORDERS_MENU => orders_menu(&user).await,
         SELL_LIMIT_MENU => sell_limit_menu(&user).await,
         BUY_LIMIT_MENU => limit_buy_menu(user.id).await,
         BALANCES_MENU => balance_menu(&user).await,

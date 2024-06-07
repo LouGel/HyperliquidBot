@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use teloxide::types::OrderInfo;
 // use std::error::Error;
 use crate::globals::NETWORK;
-use crate::hyperliquid_api::fetch_orders::OpenOrdersResponse;
+// use crate::hyperliquid_api::fetch_orders::OpenOrdersResponse;
 use crate::AddressForBot;
 use anyhow::{anyhow, Error, Result};
 use ethers::types::Address;
@@ -79,7 +79,7 @@ struct UniverseInfo {
 #[serde(rename_all = "camelCase")]
 pub struct SpotMetaResponse {
     pub tokens: Vec<TokenInfo>,
-    // universe: Vec<UniverseInfo>,
+    universe: Vec<UniverseInfo>,
 }
 #[derive(Serialize)]
 pub struct BalancesRequest {
@@ -99,6 +99,12 @@ pub struct Balance {
 pub struct BalancesResponse {
     pub balances: Vec<Balance>,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct OpenOrdersResponse {
+    pub orders: Vec<OpenOrder>,
+}
+
 impl HyperLiquidClient {
     pub async fn fetch_spot_meta(&self) -> Result<SpotMetaResponse> {
         let client = Client::new();
@@ -117,6 +123,21 @@ impl HyperLiquidClient {
                 response.status()
             ))
         }
+    }
+
+    pub async fn fetch_spot_balance_for_addresses(
+        self,
+        addresses: &Vec<Address>,
+    ) -> Result<Vec<Vec<Balance>>> {
+        let client = Client::new();
+        let futures = addresses
+            .iter()
+            .map(|&address| self.fetch_spot_balances(&client, address));
+        let mut orders_responses = Vec::new();
+        for result in join_all(futures).await {
+            orders_responses.push(result?);
+        }
+        Ok(orders_responses)
     }
     pub async fn fetch_spot_balances(
         &self,
@@ -137,6 +158,7 @@ impl HyperLiquidClient {
 
         if response.status().is_success() {
             let balances = response.json::<BalancesResponse>().await?;
+
             Ok(balances.balances)
         } else {
             Err(anyhow!(
@@ -146,21 +168,6 @@ impl HyperLiquidClient {
             ))
         }
     }
-    pub async fn fetch_spot_balance_for_addresses(
-        self,
-        addresses: &Vec<Address>,
-    ) -> Result<Vec<Vec<Balance>>> {
-        let client = Client::new();
-        let futures = addresses
-            .iter()
-            .map(|&address| self.fetch_spot_balances(&client, address));
-        let mut orders_responses = Vec::new();
-        for result in join_all(futures).await {
-            orders_responses.push(result?);
-        }
-        Ok(orders_responses)
-    }
-
     pub async fn fetch_open_orders_for_addresses(
         self,
         addresses: &Vec<Address>,
@@ -174,22 +181,25 @@ impl HyperLiquidClient {
         for result in results {
             orders_responses.push(result?);
         }
-        todo!()
+        Ok(orders_responses)
     }
-    async fn fetch_open_orders(
-        &self,
-        client: &Client,
-        user: Address,
-    ) -> Result<OpenOrdersResponse> {
+    async fn fetch_open_orders(&self, client: &Client, user: Address) -> Result<Vec<OpenOrder>> {
         let request_body = OpenOrdersRequest {
             request_type: "openOrders".to_string(),
             user: user.to_full_string(),
         };
 
-        let response = client.post(&self.url).json(&request_body).send().await?;
+        let response = client
+            .post(&self.url)
+            .header("Content-Type", "application/json")
+            .json(&request_body)
+            .send()
+            .await?;
 
         if response.status().is_success() {
-            let orders = response.json::<OpenOrdersResponse>().await?;
+            // debug!("{:#?}", response.json().await?);
+            // todo!()
+            let orders = response.json::<Vec<OpenOrder>>().await?;
             Ok(orders)
         } else {
             Err(anyhow!(

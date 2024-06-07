@@ -24,7 +24,7 @@ pub async fn orders_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardM
         "<b>🤖 Hyperliquid 
     Your Orders </b> \n"
     );
-
+    debug!("Display  full order");
     text += &display_full_order(addresses).await?;
 
     Ok((text, get_orders_keyboard()))
@@ -41,7 +41,7 @@ pub async fn display_full_order(addresses: Vec<Address>) -> Result<String> {
     for (i, wallet) in balances.iter().enumerate() {
         ret += &format!("\n<b>Wallet {i}-------\n</b>");
         let mut entered_loop = false;
-        for (orders) in wallet.iter() {
+        for orders in wallet.iter() {
             entered_loop = true;
             let type_order = match orders.side.as_ref() {
                 "B" => "Buy",
