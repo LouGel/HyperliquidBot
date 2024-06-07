@@ -29,7 +29,11 @@ pub fn get_trade_keyboard() -> InlineKeyboardMarkup {
             ),
         ],
         vec![
-            InlineKeyboardButton::callback("Transfer", &format!("{SIMPLE_MENU}_{TRANSFER_MENU}")),
+            InlineKeyboardButton::callback(
+                "Current orders",
+                &format!("{SIMPLE_MENU}_{ORDERS_MENU}"),
+            ),
+            // InlineKeyboardButton::callback("Transfer", &format!("{SIMPLE_MENU}_{TRANSFER_MENU}")),
             InlineKeyboardButton::callback("Balances", &format!("{SIMPLE_MENU}_{BALANCES_MENU}")),
         ],
     ])

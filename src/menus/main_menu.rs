@@ -59,6 +59,7 @@ use crate::handlers::constants_callbacks::*;
 pub fn get_main_menu_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new([[
         InlineKeyboardButton::callback("🎯 Snipe", &format!("{SIMPLE_MENU}_{SNIPE_MENU}")),
+        InlineKeyboardButton::callback("⚙️ Settings", &format!("{SIMPLE_MENU}_{SETTINGS_MENU}")),
         InlineKeyboardButton::callback("💼 Trade", &format!("{SIMPLE_MENU}_{TRADE_MENU}")),
     ]])
 }

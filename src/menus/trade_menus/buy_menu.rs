@@ -225,10 +225,7 @@ pub fn get_buy_menu_keyboard(desired_token : &str) -> InlineKeyboardMarkup {
        vec![
             get_refresh_button(BUY_MENU),
         ],
-        vec![InlineKeyboardButton::callback(
-            "ExpertMode ❌",
-           &format!("{DYN_ACTION}_{BUY_MENU}_{TOGGLE_EXPERT}"),
-        )],
+
         vec![wallet_title],
         wallet_buttons,
         vec![InlineKeyboardButton::callback(

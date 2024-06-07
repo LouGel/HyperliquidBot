@@ -170,10 +170,6 @@ pub fn get_limit_buy_keyboard_from_chain_name() -> InlineKeyboardMarkup {
                 &format!("{REFRESH_MENU}_{BUY_LIMIT_MENU}"),
             ),
         ],
-        vec![InlineKeyboardButton::callback(
-            "📦 Wrap Native",
-            &format!("{SIMPLE_MENU}_{WRAP_MENU}"),
-        )],
         vec![wallet_title],
         wallet_buttons,
         vec![

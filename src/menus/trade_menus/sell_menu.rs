@@ -2,7 +2,7 @@ use crate::handlers::constants_callbacks::*;
 
 use crate::globals::*;
 use crate::traits::{InlineKeyBoardHandler, OmnixString, PKeyHandler};
-use crate::{display_balance, get_main_and_faq_banner, get_refresh_button, hyperliquid_api::*};
+use crate::{get_main_and_faq_banner, get_refresh_button, hyperliquid_api::*};
 use crate::{vec_3_p_keys_to_address, AddressForBot};
 use anyhow::anyhow;
 use anyhow::Result;
@@ -16,16 +16,17 @@ pub async fn sell_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMar
     let supplement_fee = "-".to_owned();
     // get_address_from_receiver(UserId(user_id), receiver)
     let pks = WALLETS_PKEY.get_result(user.id)?;
+    todo!()
 
-    let text = format_sell_message(
-        &supplement_fee,
-        Some(display_balance(vec_3_p_keys_to_address(&pks)).await?),
-        total_gas_price,
-    );
+    // let text = format_sell_message(
+    //     &supplement_fee,
+    //     Some(display_balance(vec_3_p_keys_to_address(&pks)).await?),
+    //     total_gas_price,
+    // );
 
-    let inline_keyboard = get_sell_menu_keyboard();
+    // let inline_keyboard = get_sell_menu_keyboard();
 
-    Ok((text, inline_keyboard))
+    // Ok((text, inline_keyboard))
 }
 #[derive(Debug, Clone)]
 pub struct SellMenuObject {
@@ -59,14 +60,14 @@ pub async fn sell_menu_from_keyboard(
     //     .cloned()
     //     .unwrap();
     // if let Some(params) = create_kyber_object(user, sell_object).await {
+    todo!()
+    // let text = format_sell_message(
+    //     &supplement_fee,
+    //     Some(display_balance(vec_3_p_keys_to_address(&pks)).await?),
+    //     &total_gas_price,
+    // );
 
-    let text = format_sell_message(
-        &supplement_fee,
-        Some(display_balance(vec_3_p_keys_to_address(&pks)).await?),
-        &total_gas_price,
-    );
-
-    Ok((text, mutable_keyboard))
+    // Ok((text, mutable_keyboard))
 }
 
 pub fn get_values_from_sell_markup(keyboard: InlineKeyboardMarkup) -> Result<SellMenuObject> {
@@ -123,10 +124,6 @@ pub fn get_sell_menu_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         get_main_and_faq_banner(),
         vec![get_refresh_button(SELL_MENU)],
-        vec![InlineKeyboardButton::callback(
-            "ExpertMode ❌",
-            &format!("{DYN_ACTION}_{SELL_MENU}_{TOGGLE_EXPERT}"),
-        )],
         vec![wallet_title],
         wallet_buttons,
         vec![InlineKeyboardButton::callback(

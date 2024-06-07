@@ -5,8 +5,6 @@ use teloxide::{
     types::{InlineKeyboardMarkup, User},
 };
 
-use super::constants_callbacks::TOGGLE_EXPERT;
-
 pub async fn dynamic_menus_handler(
     bot: &Bot,
     user: User,
@@ -16,11 +14,11 @@ pub async fn dynamic_menus_handler(
 ) -> anyhow::Result<()> {
     if let Some(&action) = menu.get(2) {
         let mut keyboard = InlineKeyboardMarkup::create_from_msg(&msg);
-        if action.contains(TOGGLE_EXPERT) {
-            keyboard.toggle_pro_mode(menu[1])?;
-            modify_buttons(bot, user.id, msg.id, keyboard);
-            return Ok(());
-        }
+        // if action.contains(TOGGLE_EXPERT) {
+        //     keyboard.toggle_pro_mode(menu[1])?;
+        //     modify_buttons(bot, user.id, msg.id, keyboard);
+        //     return Ok(());
+        // }
         if keyboard.update_green_checks_on_buttons(
             menu[menu.len() - 2].to_string(),
             menu.last().unwrap().to_string(),

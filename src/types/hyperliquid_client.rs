@@ -1,5 +1,6 @@
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use teloxide::types::OrderInfo;
 // use std::error::Error;
 use crate::globals::NETWORK;
 use crate::hyperliquid_api::fetch_orders::OpenOrdersResponse;
@@ -17,14 +18,14 @@ struct OpenOrdersRequest {
 }
 
 #[derive(Deserialize, Debug)]
-struct OpenOrder {
-    coin: String,
+pub struct OpenOrder {
+    pub coin: String,
     #[serde(rename = "limitPx")]
-    limit_px: String,
-    oid: u64,
-    side: String,
-    sz: String,
-    timestamp: u64,
+    pub limit_px: String,
+    pub oid: u64,
+    pub side: String,
+    pub sz: String,
+    pub timestamp: u64,
 }
 
 pub enum HyperLiquidNetwork {
@@ -162,8 +163,8 @@ impl HyperLiquidClient {
 
     pub async fn fetch_open_orders_for_addresses(
         self,
-        addresses: Vec<Address>,
-    ) -> Result<Vec<OpenOrdersResponse>> {
+        addresses: &Vec<Address>,
+    ) -> Result<Vec<Vec<OpenOrder>>> {
         let client = Client::new();
         let futures = addresses
             .iter()

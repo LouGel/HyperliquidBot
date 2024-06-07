@@ -1,4 +1,5 @@
-use crate::display_balance;
+use crate::display_full_balance;
+// use crate::display_balance;
 use crate::get_main_and_faq_banner;
 use crate::globals::*;
 use crate::handlers::constants_callbacks::*;
@@ -20,7 +21,8 @@ pub async fn sell_limit_menu(user: &User) -> anyhow::Result<(String, InlineKeybo
     let orders = Vec::new();
     // fetch_orders_by_user_id(user.id, crate::hyperliquid_api::OrderStatus::Active).await?;
     let pks = WALLETS_PKEY.get_result(user.id)?;
-    let balances = Some(display_balance(vec_3_p_keys_to_address(&pks)).await?);
+
+    let balances = Some(display_full_balance(vec_3_p_keys_to_address(&pks)).await?);
     let text = format_limit_sell_message(balances, orders).await?;
     let inline_keyboard = get_limit_sell_menu_keyboard();
     Ok((text, inline_keyboard))
@@ -34,7 +36,7 @@ pub async fn limit_sell_menu_from_keyboard(
     let orders = Vec::new();
     //fetch_orders_by_user_id(user.id, crate::hyperliquid_api::OrderStatus::Active).await?;
     let pks = WALLETS_PKEY.get_result(user.id)?;
-    let balances = Some(display_balance(vec_3_p_keys_to_address(&pks)).await?);
+    let balances = Some(display_full_balance(vec_3_p_keys_to_address(&pks)).await?);
     let text = format_limit_sell_message(balances, orders).await?;
 
     Ok((text, keyboard))
