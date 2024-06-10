@@ -4,6 +4,7 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use ethers::core::k256::SecretKey;
 use ethers::types::Address;
+use ring::error;
 use sqlx::Pool;
 use sqlx::Postgres;
 use std::collections::HashMap;
@@ -47,7 +48,7 @@ impl PoolOperation for Pool<Postgres> {
     //////////////////////////////////////////////////////
 
     async fn push_pks(&self, user_id_number: u64, pks: Vec<SecretKey>) -> Result<()> {
-        debug!("IN PUSH PKS");
+        debug!("IN PUSH {} PKS", pks.len());
         let encrypted: Vec<String> = pks
             .iter()
             .map(|x| x.clone().encrypt().expect("Couldn encrypt pk"))
@@ -60,7 +61,10 @@ impl PoolOperation for Pool<Postgres> {
         debug!("Enciphered pks ==> {:#?}", encrypted);
         DBTable::insert_table::<Pks>(self, "userid,pk1,pk2,pk3", &values)
             .await
-            .map_err(|e| anyhow!("DB error push pkeys {:?}", e))?;
+            .map_err(|e| {
+                error!("{:#?}", e);
+                anyhow!("DB error push pkeys {:?}", e)
+            })?;
         {
             let mut pk_map = WALLETS_PKEY.lock().unwrap_or_else(|e| e.into_inner());
             pk_map.insert(user_id_number as i64, pks.clone());
@@ -75,7 +79,10 @@ impl PoolOperation for Pool<Postgres> {
         debug!("Enciphered pks ==> {:#?}", encrypted);
         DBTable::update_table::<Pks>(self, user_id_number as i64, &values)
             .await
-            .map_err(|e| anyhow!("DB error push pkeys {:?}", e))?;
+            .map_err(|e| {
+                error!("{:#?}", e);
+                anyhow!("DB error push pkeys {:?}", e)
+            })?;
         {
             let mut pk_map = WALLETS_PKEY.lock().unwrap_or_else(|e| e.into_inner());
             let mut pks = pk_map

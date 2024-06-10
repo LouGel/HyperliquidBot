@@ -124,6 +124,24 @@ impl HyperLiquidClient {
             ))
         }
     }
+    pub async fn cancel_order(&self) -> Result<SpotMetaResponse> {
+        let client = Client::new();
+        let request_body = SpotMetaRequest {
+            request_type: "spotMeta".to_string(),
+        };
+
+        let response = client.post(&self.url).json(&request_body).send().await?;
+
+        if response.status().is_success() {
+            let spot_meta = response.json::<SpotMetaResponse>().await?;
+            Ok(spot_meta)
+        } else {
+            Err(anyhow::anyhow!(
+                "Failed to fetch spotMeta: {}",
+                response.status()
+            ))
+        }
+    }
 
     pub async fn fetch_spot_balance_for_addresses(
         self,

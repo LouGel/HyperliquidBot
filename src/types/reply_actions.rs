@@ -83,11 +83,19 @@ use anyhow::{anyhow, Result};
 
 impl ReplyAction {
     //TODO check i i can do it by initiating with message
-    pub fn from_str(s: &str, msg: &Message) -> Result<Self> {
+    pub fn from_str(s: &str, msg: &Message, wallet_no: &str) -> Result<Self> {
+        debug!("Replace from str {s} with msg {:?}", msg.text());
         match s {
             SHOW_PK => Ok(Self::ShowPk),
-            REPLACE_WALLET => Ok(Self::ReplaceWallet(0)),
-            IMPORT_WALLET => Ok(Self::ImportWallet(ImportWallet::default())),
+            REPLACE_WALLET => {
+                let pk_no: u8 = wallet_no.parse()?;
+                Ok(Self::ReplaceWallet(pk_no))
+            }
+            IMPORT_WALLET => {
+                let mut iw_struct = ImportWallet::default();
+                iw_struct.no = wallet_no.parse()?;
+                Ok(Self::ImportWallet(iw_struct))
+            }
             SET_PASSWD => Ok(Self::SetPasswd(SetPasswd::default())),
             /* ADDRESS |*/
             SET_ADDRESS | RECEIVER | TOKEN_TO_SEND | SET_TOKEN_DB => Ok(Self::SetAddress(

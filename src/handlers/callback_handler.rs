@@ -19,6 +19,7 @@ pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> 
         debug!("Callback : {} activates", callback_function);
         if !callback_function.contains(DEAD_CALLBACK) {
             let opts: Vec<&str> = callback_function.split('_').collect();
+
             let user = q.from.to_owned();
             if opts.len() > 1 {
                 bot.answer_callback_query(&q.id).await?;
@@ -33,9 +34,13 @@ pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> 
 
                     REFRESH_MENU => refresh_menu(&bot, user, opts, msg_from).await,
                     REPLY_ACT => {
-                        if let Ok(reply_action) = ReplyAction::from_str(opts[1], &msg_from) {
+                        if let Ok(reply_action) =
+                            ReplyAction::from_str(opts[1], &msg_from, opts.last().unwrap())
+                        {
                             reply_action_handler(&bot, user, reply_action).await;
-                        } else if let Ok(reply_action) = ReplyAction::from_str(opts[2], &msg_from) {
+                        } else if let Ok(reply_action) =
+                            ReplyAction::from_str(opts[2], &msg_from, opts.last().unwrap())
+                        {
                             reply_action_handler(&bot, user, reply_action).await;
                         } else {
                             send_unexpected_error(
