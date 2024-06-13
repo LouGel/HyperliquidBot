@@ -66,6 +66,17 @@ pub struct TokenInfo {
     pub is_canonical: bool,
 }
 
+impl TokenInfo {
+    pub fn usdc_pair_name(&self) -> Option<String> {
+        let index = self.index;
+        if index < 1 {
+            return None;
+        }
+        let pair_name = "@".to_owned() + &(index - 1).to_string();
+        Some(pair_name)
+    }
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct UniverseInfo {

@@ -1,7 +1,7 @@
 use crate::globals::*;
 use crate::hyperliquid_api::*;
 use crate::menus::sell_menu::*;
-use crate::parse_slippage;
+// use crate::parse_slippage;
 use crate::traits::{PKeyHandler, TxLink};
 use crate::AddressForBot;
 use anyhow::Result;

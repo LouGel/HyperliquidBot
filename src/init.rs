@@ -43,7 +43,10 @@ pub async fn update_token_list() -> Result<()> {
     for token in tokens {
         let token_arc = Arc::new(token.clone());
         token_map.insert(token.name.clone(), Arc::clone(&token_arc));
-        token_map.insert(token.token_id, token_arc);
+        token_map.insert(token.token_id.clone(), Arc::clone(&token_arc));
+        if let Some(pair) = token.usdc_pair_name() {
+            token_map.insert(pair, token_arc);
+        }
     }
     Ok(())
 }

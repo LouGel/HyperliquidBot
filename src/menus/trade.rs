@@ -3,10 +3,11 @@ use teloxide::types::{InlineKeyboardButton, InlineKeyboardMarkup};
 
 pub async fn trade_menu() -> anyhow::Result<(String, InlineKeyboardMarkup)> {
     let text = format!(
-        "<b>💼 Trade anywhere at anytime.\n\n\
+        "<b>💹WAGMI TRADING</b>
+                Trade tokens on Hyperliquid so that we’re all gonna make it!\n\n\
                 Choose the trading method that suits you best\n\
                 → Buy / Sell Tokens (buy directly any Token on chains)\n\
-                → Buy / Sell Limit (buy any Token on chains)\n</b>"
+                → Buy / Sell Limit (buy any Token on chains)\n"
     );
 
     let inline_keyboard = get_trade_keyboard();

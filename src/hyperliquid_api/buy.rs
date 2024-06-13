@@ -17,6 +17,7 @@ pub async fn buy_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup) 
     } = get_values_from_buy_markup(menu)?;
 
     todo!("Buy_from_menu")
+
     // execute_swap(signer, builded_params, None)
     //     .await?
     //     .to_tx_link(network)

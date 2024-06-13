@@ -76,14 +76,14 @@ pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyActi
 pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
     match action.clone() {
         ReplyAction::CancelOrder(step, _) => {
-            match cancel_order(user.id, action).await {
-                Ok(()) => send_message(bot, &user, "Order cancelled successfully"),
-                Err(e) => send_unexpected_error(
-                    bot,
-                    &user,
-                    format!("Error canceling order {:?} -> {}", step, e.to_string()),
-                ),
-            };
+            // match cancel_order(user.id, action).await {
+            //     Ok(()) => send_message(bot, &user, "Order cancelled successfully"),
+            //     Err(e) => send_unexpected_error(
+            //         bot,
+            //         &user,
+            //         format!("Error canceling order {:?} -> {}", step, e.to_string()),
+            //     ),
+            // };
         }
 
         ReplyAction::Buy(msg_info) => buy_from_menu(bot, &user, msg_info.keyboard)

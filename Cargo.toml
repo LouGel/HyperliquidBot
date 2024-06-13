@@ -11,7 +11,7 @@ log = "0.4"
 pretty_env_logger = "0.5"
 tokio = { version =  "1.8", features = ["full"] }
 dotenv = "0.15"
-
+hyperliquid_rust_sdk = { path = "./hyperliquid-rust-sdk" } 
 openssl = "0.10.62"
 lazy_static = "1.4.0"
 sqlx = { version = "0.5.0", features = ["postgres", "runtime-tokio-native-tls", "macros"] }
