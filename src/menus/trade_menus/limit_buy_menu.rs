@@ -1,35 +1,50 @@
 use crate::get_main_and_faq_banner;
 use crate::handlers::constants_callbacks::*;
 
+use crate::get_wallet_from_title_and_buttons;
+use crate::globals::*;
 use crate::traits::InlineKeyBoardHandler;
-use crate::traits::OmnixString;
 
+use crate::types::hyperliquid_client::{Balance, HyperLiquidNetwork};
+use crate::PKeyHandler;
 use crate::{
     globals::*,
+    hyperliquid_api::balances::{self},
     vec_3_p_keys_to_address,
-    // hyperliquid_api::{
-    //     fetch_orders_by_user_id, format_orders_for_text_msg, get_raw_erc20_balance_of_address,
-    //     get_wrapped_and_native_amounts_for_addresses, send_order, Order, OrderType,
-    // },
-    PKeyHandler,
 };
+use crate::{modify_message_with_buttons, send_unexpected_error};
+use teloxide::prelude::*;
+use teloxide::types::*;
+
 use anyhow::anyhow;
+use anyhow::Result;
 use ethers::types::Address;
-use teloxide::{
-    prelude::*,
-    types::{InlineKeyboardButton, InlineKeyboardMarkup, User},
+
+use hyperliquid_rust_sdk::{
+    BaseUrl, ClientCancelRequest, ClientLimit, ClientOrder, ClientOrderRequest, ExchangeClient,
+    ExchangeDataStatus, ExchangeResponseStatus,
 };
+
+use ethers::types::U256;
+use ethers::utils::{format_units, parse_units};
+use std::str::FromStr;
+use teloxide::prelude::*;
+use teloxide::types::*;
 
 pub async fn limit_buy_menu(user_id: UserId) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
     let p_ks = WALLETS_PKEY.get_result(user_id)?;
     let addresses = vec_3_p_keys_to_address(&p_ks);
-    let ret = Vec::new();
-    //fetch_orders_by_user_id(user_id, crate::hyperliquid_api::OrderStatus::Active).await?;
+    let client = HyperLiquidNetwork::get_client();
 
-    let text = format_limit_buy_message(addresses, ret).await?;
+    let balances_raw = client.fetch_spot_balance_for_addresses(&addresses).await?;
+    let mut balances_usdc = Vec::new();
+    for balances in &balances_raw {
+        let usdc_balance: Vec<&Balance> = balances.iter().filter(|x| x.coin == "USDC").collect();
+        balances_usdc.push(usdc_balance.into_iter().next())
+    }
 
-    let inline_keyboard = get_limit_buy_keyboard_from_chain_name();
-
+    let inline_keyboard = get_limit_buy_keyboard("WAGMI");
+    let text = format_limit_buy_message(balances_usdc);
     Ok((text, inline_keyboard))
 }
 
@@ -42,11 +57,26 @@ pub async fn limit_buy_menu_from_keyboard(
         .to_lowercase();
     let p_ks = WALLETS_PKEY.get_result(user.id)?;
     let addresses = vec_3_p_keys_to_address(&p_ks);
-    let ret = Vec::new();
-    // fetch_orders_by_user_id(user.id, crate::hyperliquid_api::OrderStatus::Active).await?;
-    let text = format_limit_buy_message(addresses, ret).await?;
 
-    Ok((text, keyboard))
+    todo!();
+    // fetch_orders_by_user_id(user.id, crate::hyperliquid_api::OrderStatus::Active).await?;
+    // let text = format_limit_buy_message(vec![None]).await?;
+
+    // Ok((text, keyboard))
+}
+
+pub async fn spawn_limit_buy_menu_from_keyboard(
+    bot: &Bot,
+    user: &User,
+    msg_id: MessageId,
+    keyboard: InlineKeyboardMarkup,
+) {
+    match limit_buy_menu_from_keyboard(user, keyboard).await {
+        Ok((text, keyboard)) => {
+            modify_message_with_buttons(bot, user, msg_id, &text, &keyboard);
+        }
+        Err(e) => send_unexpected_error(bot, user, e.to_string() + "in spawn limit_buy"),
+    }
 }
 
 // use std::time::{SystemTime, UNIX_EPOCH};
@@ -58,105 +88,27 @@ pub fn get_time_now() -> u64 {
         .unwrap_or_else(|_| panic!("Time went backwards"));
     since_the_epoch.as_secs()
 }
-pub async fn format_limit_buy_message(
-    addresses: Vec<Address>,
-    orders: Vec<Vec<String>>,
-) -> anyhow::Result<String> {
-    Ok(format!(
-        "<b>🛠 Limit Buy Order</b>\n
-    Buy cryptocurrencies on HyperLiquid with advanced options:\n\
-    Use Buy Limit to purchase when a token's price drops\n\
-    and set the duration for your purchase settings to stay active! d\n\n\
-    {}\n <u>Orders</u>:\n {}",
-        "Native balance",
-        "Format Order todo" //format_orders_for_text_msg(orders, network, Some(OrderType::Buy))?
-    ))
-}
-pub struct LimitBuyStruct {
-    pub chain: String,
-    pub wallet_index: usize,
-    pub percentage_x100: u16,
-    pub token: Address,
-    pub absolute_percentage_diff_x100: u16,
-    pub expired_at: u64,
-}
-pub fn get_values_from_limit_buy_markup(
-    keyboard: InlineKeyboardMarkup,
-) -> anyhow::Result<LimitBuyStruct> {
-    let percentage_x100 = keyboard
-        .get_result_from_callback_fct(AMOUNT_PERC)?
-        .parse_and_scale_percentage()?;
-    let string_wallet = keyboard.get_result_from_checked_callback_fct(WALLET)?;
-    let wallet_index = string_wallet.clean_and_parse_to_usize()? - 1;
-
-    let token_str = keyboard.get_result_from_callback_fct(SET_ADDRESS)?;
-    let chain = keyboard
-        .get_result_from_callback_fct(CHANGE_NETWORK)?
-        .to_lowercase();
-    let token: Address = token_str.parse()?;
-    let absolute_percentage_diff_x100 = keyboard
-        .get_result_from_callback_fct(SET_NEGATIVE_PERC)?
-        .parse_and_scale_percentage()?;
-    let duration = keyboard
-        .get_result_from_callback_fct(SET_DURATION)?
-        .from_str_to_sec()?;
-    let expired_at = get_time_now()
-        .checked_add(duration)
-        .ok_or(anyhow!("Could do that addition"))?;
-
-    Ok(LimitBuyStruct {
-        chain,
-        wallet_index,
-        percentage_x100,
-        token,
-        absolute_percentage_diff_x100,
-        expired_at,
-    })
+fn format_limit_buy_message(bal_raw: Vec<Option<&Balance>>) -> String {
+    let balances: Vec<String> = bal_raw
+        .iter()
+        .map(|x| match x {
+            Some(bal) => bal.total.clone(),
+            None => "0".to_owned(),
+        })
+        .collect();
+    format!(
+        "<b>🛠WAGMI Limit Buy Order</b>\n
+        Buy tokens on HyperLiquid with advanced options:
+        Use Buy Limit to purchase when a token's price drops and set the duration for your purchase settings to stay active! 
+        ⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+        USDC Balance:\n
+        w1 :{} $USDC\n
+        w2 :{} $USDC\n
+        w3 :{} $USDC
+        ", balances[0], balances[1], balances[2])
 }
 
-//Order : get % of the ether bag -> after check the price
-use crate::utils::format_float;
-
-pub async fn buy_from_limit_buy_menu(
-    user: &User,
-    menu: InlineKeyboardMarkup,
-) -> anyhow::Result<String> {
-    let LimitBuyStruct {
-        chain,
-        wallet_index,
-        percentage_x100,
-        token,
-        absolute_percentage_diff_x100,
-        expired_at,
-    } = get_values_from_limit_buy_markup(menu)?;
-    todo!("buy from lomit menu");
-    // let network = &NETWORK_MAP.get_result(&chain)?;
-    // let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_index)?;
-    // let balance = get_raw_erc20_balance_of_address(
-    //     network.get_provider()?,
-    //     &network.wrapped_native_address,
-    //     &pk.to_address(),
-    // )
-    // .await?;
-    // let amount = balance * percentage_x100 / 10_000;
-    // // let amount_parsed = parse_from_native(network, amount);
-
-    // send_order(
-    //     network,
-    //     token,
-    //     amount,
-    //     absolute_percentage_diff_x100,
-    //     pk,
-    //     expired_at,
-    //     OrderType::Buy,
-    // )
-    // .await?;
-    // Ok("Order posted".to_owned())
-}
-
-use crate::get_wallet_from_title_and_buttons;
-
-pub fn get_limit_buy_keyboard_from_chain_name() -> InlineKeyboardMarkup {
+pub fn get_limit_buy_keyboard(desired_token: &str) -> InlineKeyboardMarkup {
     let (wallet_title, wallet_buttons) = get_wallet_from_title_and_buttons(BUY_LIMIT_MENU);
     InlineKeyboardMarkup::new(vec![
         get_main_and_faq_banner(),
@@ -172,39 +124,33 @@ pub fn get_limit_buy_keyboard_from_chain_name() -> InlineKeyboardMarkup {
         ],
         vec![wallet_title],
         wallet_buttons,
-        vec![
-            InlineKeyboardButton::callback(&format!("% of USD"), DEAD_CALLBACK),
-            InlineKeyboardButton::callback("Expiration", DEAD_CALLBACK),
-        ],
-        vec![
-            InlineKeyboardButton::callback(
-                "10%",
-                &format!("{REPLY_ACT}_{BUY_LIMIT_MENU}_{SET_AMOUNT_PERC}"),
-            ),
-            InlineKeyboardButton::callback(
-                "24h",
-                &format!("{REPLY_ACT}_{BUY_LIMIT_MENU}_{SET_DURATION}"),
-            ),
-        ],
         vec![InlineKeyboardButton::callback(
-            "-% Limit Buy",
+            &format!("AMOUNT USD USED TO BUY"),
             DEAD_CALLBACK,
         )],
         vec![InlineKeyboardButton::callback(
-            "-10%",
-            &format!("{REPLY_ACT}_{BUY_LIMIT_MENU}_{SET_NEGATIVE_PERC}"),
+            "Amount ✏️",
+            &format!("{REPLY_ACT}_{BUY_MENU}_{AMOUNT_PLAIN}_{CUSTOM}"),
         )],
         vec![InlineKeyboardButton::callback(
-            "Token address",
+            &format!("TOKEN"),
             DEAD_CALLBACK,
         )],
         vec![InlineKeyboardButton::callback(
-            "-",
-            &format!("{REPLY_ACT}_{BUY_LIMIT_MENU}_{SET_ADDRESS}",),
+            &format!("{desired_token}"),
+            &format!("{REPLY_ACT}_{BUY_MENU}_{SET_TOKEN_NAME}"),
+        )],
+        vec![InlineKeyboardButton::callback(
+            &format!("Price"),
+            DEAD_CALLBACK,
+        )],
+        vec![InlineKeyboardButton::callback(
+            &format!("0"),
+            &format!("{REPLY_ACT}_{BUY_MENU}_{SET_AMOUNT_PLAIN}"),
         )],
         vec![InlineKeyboardButton::callback(
             "SEND TX",
-            &format!("{REPLY_ACT}_{BUY_LIMIT_MENU}_{BUY_LIMIT}",),
+            &format!("{REPLY_ACT}_{BUY_MENU}_{BUY}"),
         )],
     ])
 }

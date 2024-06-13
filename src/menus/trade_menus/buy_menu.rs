@@ -10,6 +10,11 @@ use crate::{
     send_unexpected_error,
 };
 use anyhow::Result;
+use hyperliquid_rust_sdk::ClientTrigger;
+use hyperliquid_rust_sdk::{
+    BaseUrl, ClientCancelRequest, ClientLimit, ClientOrder, ClientOrderRequest, ExchangeClient,
+    ExchangeDataStatus, ExchangeResponseStatus,
+};
 
 use ethers::types::{Address, U256};
 use ethers::utils::{format_units, parse_units};
@@ -52,13 +57,13 @@ pub async fn buy_menu_from_keyboard(
 ) -> Result<(String, InlineKeyboardMarkup)> {
     let mut mutable_keyboard = keyboard.clone();
     let buy_object = get_values_from_buy_markup(keyboard)?; //TODO
-    let BuyMenuObject {
-        chain,
-        wallet_index,
-        amount,
-        token,
-        slippage: _,
-    } = buy_object.clone();
+                                                            // let BuyMenuObject {
+                                                            //     chain,
+                                                            //     wallet_index,
+                                                            //     amount,
+                                                            //     token,
+                                                            //     slippage: _,
+                                                            // } = buy_object.clone();
 
     let mut desired_symbol = "???".to_string();
 
@@ -87,20 +92,6 @@ pub async fn spawn_buy_menu_from_keyboard(
         Err(e) => send_unexpected_error(bot, user, e.to_string()),
     }
 }
-use crate::limit_buy_menu_from_keyboard;
-pub async fn spawn_limit_buy_menu_from_keyboard(
-    bot: &Bot,
-    user: &User,
-    msg_id: MessageId,
-    keyboard: InlineKeyboardMarkup,
-) {
-    match limit_buy_menu_from_keyboard(user, keyboard).await {
-        Ok((text, keyboard)) => {
-            modify_message_with_buttons(bot, user, msg_id, &text, &keyboard);
-        }
-        Err(e) => send_unexpected_error(bot, user, e.to_string() + "in spawn limit_buy"),
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct BuyMenuObject {
@@ -110,30 +101,48 @@ pub struct BuyMenuObject {
     pub token: Address,
     pub slippage: Option<f64>,
 }
-use crate::address;
-// KyberSwapParams
-pub fn get_values_from_buy_markup(keyboard: InlineKeyboardMarkup) -> anyhow::Result<BuyMenuObject> {
+
+pub fn get_values_from_buy_markup(
+    keyboard: InlineKeyboardMarkup,
+) -> anyhow::Result<(usize, ClientOrderRequest)> {
     let amount_string = keyboard.get_result_from_checked_callback_fct(AMOUNT_PLAIN)?;
-    let amount: f64 = amount_string.clean_and_parse_to_float()?;
+    let sz: f64 = amount_string.clean_and_parse_to_float()?;
     let string_wallet = keyboard.get_result_from_checked_callback_fct(WALLET)?;
     let wallet_index = string_wallet.clean_and_parse_to_usize()? - 1;
 
-    let token_str = keyboard.get_result_from_callback_fct(SET_ADDRESS)?;
-    let chain = keyboard
-        .get_result_from_callback_fct(CHANGE_NETWORK)?
-        .to_lowercase();
-    let token = address!(&token_str);
-    let slippage = keyboard
-        .get_value_from_callback_fct(SLIPPAGE)
-        .and_then(|slip| slip.clean_and_parse_to_float().ok());
+    let limit_px = keyboard
+        .get_result_from_callback_fct(SET_AMOUNT_PLAIN)?
+        .clean_and_parse_to_float()
+        .unwrap_or(0.0);
 
-    Ok(BuyMenuObject {
-        chain,
+    let token_str = keyboard.get_result_from_callback_fct(SET_TOKEN_NAME)?;
+    let token = TOKEN_LIST.get_result(token_str)?;
+    let asset = token
+        .usdc_pair_name()
+        .ok_or(anyhow::anyhow!("Wrong pair"))?;
+    let order_type = match limit_px {
+        x if x != 0.0 => ClientOrder::Limit(ClientLimit {
+            tif: "Gtc".to_string(),
+        }),
+        _ => ClientOrder::Trigger(ClientTrigger {
+            is_market: true,
+            tpsl: "tp".to_owned(),
+            trigger_px: 0.0,
+        }),
+    };
+
+    Ok((
         wallet_index,
-        amount,
-        token,
-        slippage,
-    })
+        ClientOrderRequest {
+            asset,
+            is_buy: true,
+            reduce_only: false,
+            limit_px,
+            sz,
+            cloid: None,
+            order_type,
+        },
+    ))
 }
 fn format_buy_message(bal_raw: Vec<Option<&Balance>>) -> String {
     let balances: Vec<String> = bal_raw
@@ -167,41 +176,25 @@ pub fn get_buy_menu_keyboard(desired_token: &str) -> InlineKeyboardMarkup {
             &format!("AMOUNT USD USED TO BUY"),
             DEAD_CALLBACK,
         )],
-        vec![
-            InlineKeyboardButton::callback(
-                "✅ 0.1",
-                &format!("{DYN_ACTION}_{BUY_MENU}_{AMOUNT_PLAIN}_0.1"),
-            ),
-            InlineKeyboardButton::callback(
-                "0.2",
-                &format!("{DYN_ACTION}_{BUY_MENU}_{AMOUNT_PLAIN}_0.2"),
-            ),
-            InlineKeyboardButton::callback(
-                "0.5",
-                &format!("{DYN_ACTION}_{BUY_MENU}_{AMOUNT_PLAIN}_0.5"),
-            ),
-        ],
-        vec![
-            InlineKeyboardButton::callback(
-                "1.0",
-                &format!("{DYN_ACTION}_{BUY_MENU}_{AMOUNT_PLAIN}_1.0"),
-            ),
-            InlineKeyboardButton::callback(
-                "Custom",
-                &format!("{REPLY_ACT}_{BUY_MENU}_{AMOUNT_PLAIN}_{CUSTOM}"),
-            ),
-        ],
-        // vec![InlineKeyboardButton::callback(
-        //     "TOKEN ADDRESS",
-        //     DEAD_CALLBACK,
-        // )],
         vec![InlineKeyboardButton::callback(
-            &format!("{desired_token}"),
-            &format!("{REPLY_ACT}_{BUY_MENU}_{SET_ADDRESS}"),
+            "Amount ✏️",
+            &format!("{REPLY_ACT}_{BUY_MENU}_{AMOUNT_PLAIN}_{CUSTOM}"),
         )],
         vec![InlineKeyboardButton::callback(
-            "Waiting for address",
+            &format!("TOKEN"),
             DEAD_CALLBACK,
+        )],
+        vec![InlineKeyboardButton::callback(
+            &format!("{desired_token}"),
+            &format!("{REPLY_ACT}_{BUY_MENU}_{SET_TOKEN_NAME}"),
+        )],
+        vec![InlineKeyboardButton::callback(
+            &format!("Price"),
+            DEAD_CALLBACK,
+        )],
+        vec![InlineKeyboardButton::callback(
+            &format!(""),
+            &format!("{REPLY_ACT}_{BUY_MENU}_{SET_AMOUNT_PLAIN}"),
         )],
         vec![InlineKeyboardButton::callback(
             "SEND TX",

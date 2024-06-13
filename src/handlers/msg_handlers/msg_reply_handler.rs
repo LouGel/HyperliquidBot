@@ -211,7 +211,7 @@ fn handle_custom_setters(
     let msg_id = MessageId(message_to_reply.id);
     debug!("In handle reply : {}", &callback_to_find);
     if verifier(&message_to_reply.text, input) {
-        if !callback_to_find.contains("Set") {
+        if !callback_to_find.contains("Setk") {
             message_to_reply
                 .keyboard
                 .update_custom_fct(callback_to_find.to_string(), input);

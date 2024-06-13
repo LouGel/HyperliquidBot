@@ -8,13 +8,7 @@ use teloxide::prelude::*;
 use teloxide::types::*;
 use url::Url;
 pub async fn buy_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup) -> Result<Url> {
-    let BuyMenuObject {
-        chain,
-        slippage,
-        wallet_index,
-        amount,
-        token,
-    } = get_values_from_buy_markup(menu)?;
+    let lol = get_values_from_buy_markup(menu)?;
 
     todo!("Buy_from_menu")
 

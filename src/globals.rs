@@ -39,6 +39,23 @@ lazy_static! {
         Arc::new(Mutex::new(HashMap::new()));
 }
 
+impl TOKEN_LIST {
+    pub fn get_result(&self, token_name: String) -> anyhow::Result<Arc<TokenInfo>> {
+        Ok(self
+            .lock()
+            .map_err(|e| {
+                anyhow!(
+                    "Poison lock in TokenInfo get for {} --> {}",
+                    token_name,
+                    e.to_string()
+                )
+            })?
+            .get(&token_name)
+            .ok_or(anyhow!("Couldn't access pk for user {}", token_name))?
+            .clone())
+    }
+}
+
 impl WALLETS_PKEY {
     pub fn get_result(&self, user_id: UserId) -> anyhow::Result<Vec<SecretKey<Secp256k1>>> {
         let parsed_id = user_id.0 as i64;

@@ -6,7 +6,7 @@ use super::reply_actions::*;
 use crate::bot::*;
 use crate::handlers::ResultHandler;
 use crate::hyperliquid_api::orders::cancel_order;
-use crate::hyperliquid_api::{buy_from_menu, sell_from_menu};
+use crate::hyperliquid_api::{buy_from_menu, order_from_menu, sell_from_menu};
 use crate::menus::*;
 use crate::traits::*;
 use crate::types::*;
@@ -86,16 +86,19 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
             // };
         }
 
-        ReplyAction::Buy(msg_info) => buy_from_menu(bot, &user, msg_info.keyboard)
-            .await
-            .handle_action_result("Buy Erc20:", bot, &user),
-        ReplyAction::Sell(msg_info) => {
-            sell_from_menu(bot, &user, msg_info.keyboard)
-                .await
-                .handle_action_result("Sell ERC20:", bot, &user);
+        ReplyAction::Buy(msg_info) => {
+            if let Err(e) = order_from_menu(bot, &user, msg_info.keyboard).await {
+                send_error(
+                    bot,
+                    &user,
+                    &("Error in buy limit from menu".to_owned() + &e.to_string()),
+                )
+            } else {
+                send_message(bot, &user, "Order Created")
+            }
         }
         ReplyAction::BuyLimit(msg_info) => {
-            if let Err(e) = buy_from_limit_buy_menu(&user, msg_info.keyboard).await {
+            if let Err(e) = order_from_menu(bot, &user, msg_info.keyboard).await {
                 send_error(
                     bot,
                     &user,
