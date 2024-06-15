@@ -1,19 +1,25 @@
-use ethers::signers::LocalWallet;
-use log::info;
-use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
-use anyhow::Result;
-use ethers_core::k256::ecdsa::SigningKey;
-use ethers_core::k256::{elliptic_curve::SecretKey, Secp256k1};
+use crate::handlers::constants_callbacks::{AMOUNT_PLAIN, TOKEN_NAME};
+use crate::handlers::constants_callbacks::{PRICE_WANTED, WALLET};
+use crate::traits::OmnixString;
+use crate::{globals::*, InlineKeyBoardHandler};
 use hyperliquid_rust_sdk::{
-    BaseUrl, ClientCancelRequest, ClientLimit, ClientOrder, ClientOrderRequest, ExchangeClient,
-    ExchangeDataStatus, ExchangeResponseStatus,
+    BaseUrl, ClientCancelRequest, ClientLimit, ClientOrder, ClientOrderRequest, ClientTrigger,
+    ExchangeClient, ExchangeDataStatus, ExchangeResponseStatus,
 };
-use std::{thread::sleep, time::Duration};
 
-use crate::PKeyHandler;
+use crate::traits::PKeyHandler;
+use anyhow::Result;
+use ethers::abi::token;
+use ethers_signer::wallet;
 
-async fn create_order(pk: SecretKey<Secp256k1>, is_limit: bool, is_buy: bool) -> Result<u64> {
+use teloxide::prelude::*;
+use teloxide::types::*;
+use url::Url;
+pub async fn order_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup) -> Result<Url> {
+    let (wallet_no, order) = get_wallet_no_and_order_from_markup(&menu)?;
+    let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_no)?;
     let str = pk.to_hex_string();
     let exchange_client = ExchangeClient::new(
         None,
@@ -25,18 +31,6 @@ async fn create_order(pk: SecretKey<Secp256k1>, is_limit: bool, is_buy: bool) ->
     )
     .await
     .unwrap();
-
-    let order = ClientOrderRequest {
-        asset: "@6".to_string(),
-        is_buy: true,
-        reduce_only: false,
-        limit_px: 0.001,
-        sz: 10000.0,
-        cloid: None,
-        order_type: ClientOrder::Limit(ClientLimit {
-            tif: "Gtc".to_string(),
-        }),
-    };
     let response = exchange_client.order(order, None).await?;
     let response = match response {
         ExchangeResponseStatus::Ok(exchange_response) => exchange_response,
@@ -50,6 +44,57 @@ async fn create_order(pk: SecretKey<Secp256k1>, is_limit: bool, is_buy: bool) ->
         ExchangeDataStatus::Resting(order) => order.oid,
         _ => panic!("Error: {status:?}"),
     };
+    Ok(Url::from_str(&oid.to_string())?)
+}
 
-    Ok(oid)
+fn get_wallet_no_and_order_from_markup(
+    keyboard: &InlineKeyboardMarkup,
+) -> Result<(usize, ClientOrderRequest)> {
+    let pren_name = keyboard.get_result_from_callback_fct(TOKEN_NAME)?;
+
+    let name = &pren_name
+        .split("_")
+        .nth(0)
+        .ok_or(anyhow::anyhow!("Couldn't get token name {pren_name}"))?;
+    let wallet = keyboard
+        .get_result_from_checked_callback_fct(WALLET)?
+        .clean_and_parse_to_usize()?
+        - 1;
+
+    let (is_buy, is_limit) = keyboard.get_whic_order_type()?;
+    let token = TOKEN_LIST.get_result(name)?;
+    let limit_px: f64 = keyboard
+        .get_value_from_callback_fct(PRICE_WANTED)
+        .unwrap_or("0.0".to_owned())
+        .parse()?;
+    let sz: f64 = keyboard
+        .get_value_from_callback_fct(AMOUNT_PLAIN)
+        .unwrap_or("0.0".to_owned())
+        .parse()?;
+    let order_type = match is_limit {
+        true => ClientOrder::Limit(ClientLimit {
+            tif: "Gtc".to_string(),
+        }),
+        false => ClientOrder::Trigger(ClientTrigger {
+            is_market: !is_limit,
+            tpsl: "idk".to_owned(),
+            trigger_px: 0.0,
+        }),
+    };
+    debug!("sz = {}", sz);
+
+    let asset = token
+        .usdc_pair_name()
+        .ok_or(anyhow::anyhow!("Wrong token {}", token.name))?;
+
+    let order = ClientOrderRequest {
+        asset,
+        is_buy,
+        reduce_only: false,
+        limit_px,
+        sz,
+        cloid: None,
+        order_type,
+    };
+    Ok((wallet, order))
 }

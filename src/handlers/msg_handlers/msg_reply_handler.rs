@@ -1,19 +1,14 @@
-use std::str::FromStr;
-
-use anyhow::anyhow;
-use ethers::abi::Address;
-use ethers_core::k256::elliptic_curve::SecretKey;
-
 use super::reply_actions::*;
-use crate::address;
 use crate::bot::*;
-use crate::get_pool;
 use crate::handlers::constants_callbacks::*;
 use crate::handlers::handle_send_tx_action;
 use crate::menus::*;
 use crate::traits::*;
 use crate::types::*;
 use crate::utils::*;
+use anyhow::anyhow;
+use ethers_core::k256::elliptic_curve::SecretKey;
+use orders_to_make_menu::spawn_order_menu_from_keyboard;
 use teloxide::prelude::*;
 use teloxide_core::types::*;
 
@@ -76,34 +71,7 @@ pub fn message_handler_reply(
                 .await
             });
         }
-        ReplyAction::SetAddress(callback, message_from) => handle_custom_setters(
-            &bot,
-            &user_from,
-            &callback,
-            &mut msg_text.replace(" ", ""),
-            message_from,
-            is_ethereum_public_key,
-            "Wrong evm pub key format",
-        ),
 
-        ReplyAction::SetSlippage(message_from) => handle_custom_setters(
-            &bot,
-            &user_from,
-            SLIPPAGE,
-            &mut msg_text.replace(",", "."),
-            message_from,
-            is_good_percent_format,
-            "Wrong slippage",
-        ),
-        ReplyAction::SetAmountPerc(callback, message_from) => handle_custom_setters(
-            &bot,
-            &user_from,
-            &callback,
-            &mut msg_text.replace(",", "."),
-            message_from,
-            is_good_percent_format,
-            "Wrong percentage format",
-        ),
         ReplyAction::CancelOrder(step, message_from) => match step.clone() {
             CancelOrderStep::AskForOrderNo => {
                 let mut order_no = msg_text.clone();
@@ -155,39 +123,13 @@ pub fn message_handler_reply(
         ReplyAction::SetTokenName(message_from) => handle_custom_setters(
             &bot,
             &user_from,
-            SET_TOKEN_NAME,
+            TOKEN_NAME,
             &mut msg_text.clone(),
             message_from,
             is_good_token_name_or_number,
             "Wrong token name",
         ),
-        ReplyAction::SetDuration(message_from) => handle_custom_setters(
-            &bot,
-            &user_from,
-            SET_DURATION,
-            &mut msg_text.clone(),
-            message_from,
-            is_good_duration_format,
-            "Wrong duration format",
-        ),
-        ReplyAction::SetNegativePerc(message_from) => handle_custom_setters(
-            &bot,
-            &user_from,
-            SET_NEGATIVE_PERC,
-            &mut msg_text.replace(",", "."),
-            message_from,
-            is_good_neg_percent_format,
-            "Wrong \\-% format",
-        ),
-        ReplyAction::SetPositivePerc(message_from) => handle_custom_setters(
-            &bot,
-            &user_from,
-            SET_POSITIVE_PERC,
-            &mut msg_text.replace(",", "."),
-            message_from,
-            is_good_pos_percent_format,
-            "Wrong \\+% format",
-        ),
+
         x => {
             if is_correct_password(user_id_number, msg_text.clone()) {
                 tokio::spawn(async move { handle_send_tx_action(x, &bot, user_from).await });
@@ -209,111 +151,58 @@ fn handle_custom_setters(
     error_message: &str,
 ) {
     let msg_id = MessageId(message_to_reply.id);
-    debug!("In handle reply : {}", &callback_to_find);
     if verifier(&message_to_reply.text, input) {
-        if !callback_to_find.contains("Setk") {
-            message_to_reply
-                .keyboard
-                .update_custom_fct(callback_to_find.to_string(), input);
-        } else {
-            debug!("Changing message reply");
-            message_to_reply
-                .keyboard
-                .change_text_where_callback_contains(callback_to_find, &input);
+        message_to_reply
+            .keyboard
+            .change_text_where_callback_contains(callback_to_find, input);
+        debug!(
+            "Message keyboard -> {:?}, callback: {}",
+            message_to_reply.keyboard, callback_to_find
+        );
 
-            if callback_to_find.contains(SET_ADDRESS) {
-                let bot = bot.clone();
-                let user = user.clone();
-                tokio::spawn(async move {
-                    let _ = match message_to_reply.text.contains("imit") {
-                        true => {
-                            spawn_limit_buy_menu_from_keyboard(
-                                &bot,
-                                &user,
-                                msg_id,
-                                message_to_reply.keyboard,
-                            )
-                            .await
-                        }
-                        false => {
-                            spawn_buy_menu_from_keyboard(
-                                &bot,
-                                &user,
-                                msg_id,
-                                message_to_reply.keyboard,
-                            )
-                            .await
-                        }
-                    };
-                });
-                return;
-            } else if callback_to_find.contains(SET_TOKEN_NAME) {
-                let bot = bot.clone();
-                let user = user.clone();
-                tokio::spawn(async move {
-                    let _ = match message_to_reply.text.contains("imit") {
-                        true => {
-                            spawn_limit_sell_menu_from_keyboard(
-                                &bot,
-                                &user,
-                                msg_id,
-                                message_to_reply.keyboard,
-                            )
-                            .await
-                        }
-                        false => {
-                            spawn_sell_menu_from_keyboard(
-                                &bot,
-                                &user,
-                                msg_id,
-                                message_to_reply.keyboard,
-                            )
-                            .await
-                        }
-                    };
-                });
-                return;
-            } else if callback_to_find.contains(SET_TOKEN_DB) {
-                let bot = bot.clone();
-                let user = user.clone();
-                let input_addr = address!(input);
-                let vec_keyboard = message_to_reply.keyboard.inline_keyboard;
-                tokio::spawn(async move {
-                    check_and_add_token_to_db(&bot, &user, input_addr, vec_keyboard).await;
-                });
+        // if !callback_to_find.contains(WALLET) {
+        //     message_to_reply
+        //         .keyboard
+        //         .update_custom_fct(callback_to_find.to_string(), input);
+        // }
 
-                return;
-            }
-        }
-        debug!("Not returning");
-
-        modify_buttons(&bot, user.id, msg_id, message_to_reply.keyboard)
+        let bot = bot.clone();
+        let user = user.clone();
+        tokio::spawn(async move {
+            spawn_order_menu_from_keyboard(&bot, &user, msg_id, message_to_reply.keyboard).await
+        });
     } else {
         send_error(&bot, &user, error_message);
     }
     close_reply_action(user.id.0 as i64);
 }
 
-pub async fn check_and_add_token_to_db(
-    bot: &Bot,
-    user: &User,
-    address: Address,
-    keyboard: Vec<Vec<InlineKeyboardButton>>,
-) {
-    let pool = get_pool();
-    let chain = keyboard[2][0].text.to_lowercase();
-    debug!("In check and add token to db");
+// ReplyAction::SetDuration(message_from) => handle_custom_setters(
+//     &bot,
+//     &user_from,
+//     SET_DURATION,
+//     &mut msg_text.clone(),
+//     message_from,
+//     is_good_duration_format,
+//     "Wrong duration format",
+// ),
 
-    todo!("check_and_add_token_to_db")
-    // match pool.push_token(&network, address).await {
-    //     Ok(symbol) => send_message(bot, user, &format!("{} added tyo your tokens", symbol)),
-    //     Err(e) => {
-    //         let err_str = e.to_string();
-    //         if err_str.contains("already") {
-    //             send_error(bot, user, &err_str)
-    //         } else {
-    //             send_unexpected_error(bot, user, err_str);
-    //         }
-    //     }
-    // }
-}
+// ReplyAction::SetAddress(callback, message_from) => handle_custom_setters(
+//     &bot,
+//     &user_from,
+//     &callback,
+//     &mut msg_text.replace(" ", ""),
+//     message_from,
+//     is_ethereum_public_key,
+//     "Wrong evm pub key format",
+// ),
+
+// ReplyAction::SetAmountPerc(callback, message_from) => handle_custom_setters(
+//     &bot,
+//     &user_from,
+//     &callback,
+//     &mut msg_text.replace(",", "."),
+//     message_from,
+//     is_good_percent_format,
+//     "Wrong percentage format",
+// ),

@@ -1,0 +1,526 @@
+[
+  {
+    "universe": [
+      {
+        "tokens": [
+          1,
+          0
+        ],
+        "name": "PURR/USDC",
+        "index": 0,
+        "isCanonical": true
+      },
+      {
+        "tokens": [
+          2,
+          0
+        ],
+        "name": "@1",
+        "index": 1,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          3,
+          0
+        ],
+        "name": "@2",
+        "index": 2,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          4,
+          0
+        ],
+        "name": "@3",
+        "index": 3,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          5,
+          0
+        ],
+        "name": "@4",
+        "index": 4,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          6,
+          0
+        ],
+        "name": "@5",
+        "index": 5,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          7,
+          0
+        ],
+        "name": "@6",
+        "index": 6,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          8,
+          0
+        ],
+        "name": "@7",
+        "index": 7,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          9,
+          0
+        ],
+        "name": "@8",
+        "index": 8,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          10,
+          0
+        ],
+        "name": "@9",
+        "index": 9,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          11,
+          0
+        ],
+        "name": "@10",
+        "index": 10,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          12,
+          0
+        ],
+        "name": "@11",
+        "index": 11,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          13,
+          0
+        ],
+        "name": "@12",
+        "index": 12,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          14,
+          0
+        ],
+        "name": "@13",
+        "index": 13,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          15,
+          0
+        ],
+        "name": "@14",
+        "index": 14,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          16,
+          0
+        ],
+        "name": "@15",
+        "index": 15,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          17,
+          0
+        ],
+        "name": "@16",
+        "index": 16,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          18,
+          0
+        ],
+        "name": "@17",
+        "index": 17,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          19,
+          0
+        ],
+        "name": "@18",
+        "index": 18,
+        "isCanonical": false
+      },
+      {
+        "tokens": [
+          20,
+          0
+        ],
+        "name": "@19",
+        "index": 19,
+        "isCanonical": false
+      }
+    ],
+    "tokens": [
+      {
+        "name": "USDC",
+        "szDecimals": 8,
+        "weiDecimals": 8,
+        "index": 0,
+        "tokenId": "0x6d1e7cde53ba9467b783cb7c530ce054",
+        "isCanonical": true
+      },
+      {
+        "name": "PURR",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 1,
+        "tokenId": "0xc1fb593aeffbeb02f85e0308e9956a90",
+        "isCanonical": true
+      },
+      {
+        "name": "HFUN",
+        "szDecimals": 2,
+        "weiDecimals": 8,
+        "index": 2,
+        "tokenId": "0xbaf265ef389da684513d98d68edf4eae",
+        "isCanonical": false
+      },
+      {
+        "name": "LICK",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 3,
+        "tokenId": "0xba3aaf468f793d9b42fd3328e24f1de9",
+        "isCanonical": false
+      },
+      {
+        "name": "MANLET",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 4,
+        "tokenId": "0xe9ced9225d2a69ccc8d6a5b224524b99",
+        "isCanonical": false
+      },
+      {
+        "name": "JEFF",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 5,
+        "tokenId": "0xfcf28885456bf7e7cbe5b7a25407c5bc",
+        "isCanonical": false
+      },
+      {
+        "name": "SIX",
+        "szDecimals": 2,
+        "weiDecimals": 8,
+        "index": 6,
+        "tokenId": "0x50a9391b4a40caffbe8b16303b95a0c1",
+        "isCanonical": false
+      },
+      {
+        "name": "WAGMI",
+        "szDecimals": 2,
+        "weiDecimals": 8,
+        "index": 7,
+        "tokenId": "0x649efea44690cf88d464f512bc7e2818",
+        "isCanonical": false
+      },
+      {
+        "name": "CAPPY",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 8,
+        "tokenId": "0x3f8abf62220007cc7ab6d33ef2963d88",
+        "isCanonical": false
+      },
+      {
+        "name": "POINTS",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 9,
+        "tokenId": "0xbb03842e1f71ed27ed8fa012b29affd4",
+        "isCanonical": false
+      },
+      {
+        "name": "TRUMP",
+        "szDecimals": 2,
+        "weiDecimals": 7,
+        "index": 10,
+        "tokenId": "0x368cb581f0d51e21aa19996d38ffdf6f",
+        "isCanonical": false
+      },
+      {
+        "name": "GMEOW",
+        "szDecimals": 0,
+        "weiDecimals": 8,
+        "index": 11,
+        "tokenId": "0x07615193eaa63d1da6feda6e0ac9e014",
+        "isCanonical": false
+      },
+      {
+        "name": "PEPE",
+        "szDecimals": 2,
+        "weiDecimals": 7,
+        "index": 12,
+        "tokenId": "0x79b6e1596ea0deb2e6912ff8392c9325",
+        "isCanonical": false
+      },
+      {
+        "name": "XULIAN",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 13,
+        "tokenId": "0x6cc648be7e4c38a8c7fcd8bfa6714127",
+        "isCanonical": false
+      },
+      {
+        "name": "RUG",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 14,
+        "tokenId": "0x4978f3f49f30776d9d7397b873223c2d",
+        "isCanonical": false
+      },
+      {
+        "name": "ILIENS",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 15,
+        "tokenId": "0xa74984ea379be6d899c1bf54db923604",
+        "isCanonical": false
+      },
+      {
+        "name": "FUCKY",
+        "szDecimals": 2,
+        "weiDecimals": 8,
+        "index": 16,
+        "tokenId": "0x7de5b7a8c115edf0174333446ba0ea78",
+        "isCanonical": false
+      },
+      {
+        "name": "CZ",
+        "szDecimals": 2,
+        "weiDecimals": 7,
+        "index": 17,
+        "tokenId": "0x3b5ff6cb91f71032578b53960090adfb",
+        "isCanonical": false
+      },
+      {
+        "name": "BAGS",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 18,
+        "tokenId": "0x979978fd8cb07141f97dcab921ba697a",
+        "isCanonical": false
+      },
+      {
+        "name": "ANSEM",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 19,
+        "tokenId": "0xa96cfac10eaecba151f646c5cb4c5507",
+        "isCanonical": false
+      },
+      {
+        "name": "TATE",
+        "szDecimals": 0,
+        "weiDecimals": 5,
+        "index": 20,
+        "tokenId": "0xfba416cad5d8944e954deb6bfb2a8672",
+        "isCanonical": false
+      },
+      {
+        "name": "FUN",
+        "szDecimals": 1,
+        "weiDecimals": 6,
+        "index": 21,
+        "tokenId": "0x3dc9f93c39ddd9f0182ad1e584bae0d4",
+        "isCanonical": false
+      }
+    ]
+  },
+  [
+    {
+      "prevDayPx": "0.13937",
+      "dayNtlVlm": "11768715.90596001",
+      "markPx": "0.14617",
+      "midPx": "0.146195",
+      "circulatingSupply": "599141429.05777001",
+      "coin": "PURR/USDC"
+    },
+    {
+      "prevDayPx": "7.8116",
+      "dayNtlVlm": "2838285.669317",
+      "markPx": "8.3426",
+      "midPx": "8.35505",
+      "circulatingSupply": "999367.49426579",
+      "coin": "@1"
+    },
+    {
+      "prevDayPx": "0.00008202",
+      "dayNtlVlm": "11305.090544",
+      "markPx": "0.00007842",
+      "midPx": "0.0000783",
+      "circulatingSupply": "6889181986.29096031",
+      "coin": "@2"
+    },
+    {
+      "prevDayPx": "0.020112",
+      "dayNtlVlm": "100644.178733",
+      "markPx": "0.020657",
+      "midPx": "0.0206875",
+      "circulatingSupply": "9922250.34569",
+      "coin": "@3"
+    },
+    {
+      "prevDayPx": "2.6249",
+      "dayNtlVlm": "357976.3203",
+      "markPx": "2.9949",
+      "midPx": "2.99205",
+      "circulatingSupply": "998453.43862",
+      "coin": "@4"
+    },
+    {
+      "prevDayPx": "0.74686",
+      "dayNtlVlm": "31204.253998",
+      "markPx": "0.74686",
+      "midPx": "0.74798",
+      "circulatingSupply": "6659304.85775935",
+      "coin": "@5"
+    },
+    {
+      "prevDayPx": "0.001368",
+      "dayNtlVlm": "253852.26016776",
+      "markPx": "0.001514",
+      "midPx": "0.001516",
+      "circulatingSupply": "418941392.81770146",
+      "coin": "@6"
+    },
+    {
+      "prevDayPx": "0.00010425",
+      "dayNtlVlm": "14.82872",
+      "markPx": "0.00009",
+      "midPx": "0.000125",
+      "circulatingSupply": "999845072.96923995",
+      "coin": "@7"
+    },
+    {
+      "prevDayPx": "0.0058",
+      "dayNtlVlm": "83246.659344",
+      "markPx": "0.0070148",
+      "midPx": "0.0070252",
+      "circulatingSupply": "99932106.95528001",
+      "coin": "@8"
+    },
+    {
+      "prevDayPx": "0.003758",
+      "dayNtlVlm": "821.784737",
+      "markPx": "0.00419",
+      "midPx": "0.004195",
+      "circulatingSupply": "99894343.3612031",
+      "coin": "@9"
+    },
+    {
+      "prevDayPx": "0.00039827",
+      "dayNtlVlm": "36121.629462",
+      "markPx": "0.00048317",
+      "midPx": "0.00048389",
+      "circulatingSupply": "999748440.90551054",
+      "coin": "@10"
+    },
+    {
+      "prevDayPx": "0.001482",
+      "dayNtlVlm": "630.247452",
+      "markPx": "0.001535",
+      "midPx": "0.001547",
+      "circulatingSupply": "99958124.4636779",
+      "coin": "@11"
+    },
+    {
+      "prevDayPx": "0.00023393",
+      "dayNtlVlm": "12788.234315",
+      "markPx": "0.00022365",
+      "midPx": "0.00022398",
+      "circulatingSupply": "694037439.57070005",
+      "coin": "@12"
+    },
+    {
+      "prevDayPx": "0.0035044",
+      "dayNtlVlm": "166027.58239",
+      "markPx": "0.0037088",
+      "midPx": "0.0037033",
+      "circulatingSupply": "99966665.7045",
+      "coin": "@13"
+    },
+    {
+      "prevDayPx": "0.00021064",
+      "dayNtlVlm": "159799.32059042",
+      "markPx": "0.00024468",
+      "midPx": "0.00024616",
+      "circulatingSupply": "693939697.12632",
+      "coin": "@14"
+    },
+    {
+      "prevDayPx": "0.000331",
+      "dayNtlVlm": "320.028299",
+      "markPx": "0.00048",
+      "midPx": "0.000573",
+      "circulatingSupply": "139978526.95851684",
+      "coin": "@15"
+    },
+    {
+      "prevDayPx": "0.17657",
+      "dayNtlVlm": "71631.435393",
+      "markPx": "0.17922",
+      "midPx": "0.179485",
+      "circulatingSupply": "4444027.4078515",
+      "coin": "@16"
+    },
+    {
+      "prevDayPx": "0.00015",
+      "dayNtlVlm": "1102.055858",
+      "markPx": "0.00017999",
+      "midPx": "0.00015508",
+      "circulatingSupply": "777759474.50112998",
+      "coin": "@17"
+    },
+    {
+      "prevDayPx": "0.011902",
+      "dayNtlVlm": "80441.880988",
+      "markPx": "0.013004",
+      "midPx": "0.0130235",
+      "circulatingSupply": "99995171.07892001",
+      "coin": "@18"
+    },
+    {
+      "prevDayPx": "0.011972",
+      "dayNtlVlm": "114243.177464",
+      "markPx": "0.01316",
+      "midPx": "0.0131795",
+      "circulatingSupply": "99994815.41971",
+      "coin": "@19"
+    }
+  ]
+]

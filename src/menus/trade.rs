@@ -19,20 +19,29 @@ pub fn get_trade_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         get_main_and_faq_banner(),
         vec![
-            InlineKeyboardButton::callback("Buy Tokens", &format!("{SIMPLE_MENU}_{BUY_MENU}")),
-            InlineKeyboardButton::callback("Sell Tokens", &format!("{SIMPLE_MENU}_{SELL_MENU}")),
+            InlineKeyboardButton::callback(
+                "Buy Tokens",
+                &format!("{SIMPLE_MENU}_{MAKE_ORDERS_MENU}_{BUY}_{MARKET}"),
+            ),
+            InlineKeyboardButton::callback(
+                "Sell Tokens",
+                &format!("{SIMPLE_MENU}_{MAKE_ORDERS_MENU}_{SELL}_{MARKET}"),
+            ),
         ],
         vec![
-            InlineKeyboardButton::callback("Buy Limit", &format!("{SIMPLE_MENU}_{BUY_LIMIT_MENU}")),
+            InlineKeyboardButton::callback(
+                "Buy Limit",
+                &format!("{SIMPLE_MENU}_{MAKE_ORDERS_MENU}_{BUY}_{LIMIT}"),
+            ),
             InlineKeyboardButton::callback(
                 "Sell Limit",
-                &format!("{SIMPLE_MENU}_{SELL_LIMIT_MENU}"),
+                &format!("{SIMPLE_MENU}_{MAKE_ORDERS_MENU}_{SELL}_{LIMIT}"),
             ),
         ],
         vec![
             InlineKeyboardButton::callback(
                 "Current orders",
-                &format!("{SIMPLE_MENU}_{ORDERS_MENU}"),
+                &format!("{SIMPLE_MENU}_{MANAGE_ORDERS_MENU}"),
             ),
             // InlineKeyboardButton::callback("Transfer", &format!("{SIMPLE_MENU}_{TRANSFER_MENU}")),
             InlineKeyboardButton::callback("Balances", &format!("{SIMPLE_MENU}_{BALANCES_MENU}")),

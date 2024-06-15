@@ -40,7 +40,7 @@ lazy_static! {
 }
 
 impl TOKEN_LIST {
-    pub fn get_result(&self, token_name: String) -> anyhow::Result<Arc<TokenInfo>> {
+    pub fn get_result(&self, token_name: &str) -> anyhow::Result<Arc<TokenInfo>> {
         Ok(self
             .lock()
             .map_err(|e| {
@@ -50,7 +50,7 @@ impl TOKEN_LIST {
                     e.to_string()
                 )
             })?
-            .get(&token_name)
+            .get(token_name)
             .ok_or(anyhow!("Couldn't access pk for user {}", token_name))?
             .clone())
     }

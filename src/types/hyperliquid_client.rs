@@ -2,7 +2,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use teloxide::types::OrderInfo;
 // use std::error::Error;
-use crate::globals::NETWORK;
+use crate::{globals::NETWORK, TOKEN_LIST};
 // use crate::hyperliquid_api::fetch_orders::OpenOrdersResponse;
 use crate::AddressForBot;
 use anyhow::{anyhow, Error, Result};
@@ -11,7 +11,7 @@ use futures::future::join_all;
 use serde::*;
 
 #[derive(Serialize)]
-struct OpenOrdersRequest {
+struct RequestWithUser {
     #[serde(rename = "type")]
     request_type: String,
     user: String,
@@ -42,7 +42,7 @@ impl HyperLiquidNetwork {
         HyperLiquidClient { url }
     }
 }
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct HyperLiquidClient {
     url: String,
 }
@@ -68,12 +68,14 @@ pub struct TokenInfo {
 
 impl TokenInfo {
     pub fn usdc_pair_name(&self) -> Option<String> {
-        let index = self.index;
-        if index < 1 {
-            return None;
+        match self.index {
+            x if x == 0 => None,
+            y if y == 1 => Some("PURR/USDC".to_owned()),
+            z => {
+                let pair_name = "@".to_owned() + &(z - 1).to_string();
+                Some(pair_name)
+            }
         }
-        let pair_name = "@".to_owned() + &(index - 1).to_string();
-        Some(pair_name)
     }
 }
 
@@ -92,11 +94,19 @@ pub struct SpotMetaResponse {
     pub tokens: Vec<TokenInfo>,
     universe: Vec<UniverseInfo>,
 }
-#[derive(Serialize)]
-pub struct BalancesRequest {
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct DayData {
+    day_ntl_vlm: String,
+    mark_px: String,
+    mid_px: String,
+    prev_day_px: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct SimpleRequest {
     #[serde(rename = "type")]
     request_type: String,
-    user: String,
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -109,6 +119,12 @@ pub struct Balance {
 #[derive(Deserialize, Debug)]
 pub struct BalancesResponse {
     pub balances: Vec<Balance>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct TokenPrice {
+    pub name: String,
+    pub price: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -168,12 +184,61 @@ impl HyperLiquidClient {
         }
         Ok(orders_responses)
     }
+    pub async fn fetch_price_for_token(self, token: &str) -> Result<String> {
+        let token = TOKEN_LIST.get_result(token)?;
+        let token_pair_name = token.usdc_pair_name().ok_or(anyhow!("Wrong token used"));
+
+        let client = Client::new();
+        let prices = self.fetch_prices(&client).await?;
+
+        Ok(prices
+            .iter()
+            .find(|&x| x.name == token.name)
+            .ok_or(anyhow!("Couldn't fin for {}", token.name))?
+            .price
+            .clone())
+    }
+    pub async fn fetch_prices(&self, client: &Client) -> Result<Vec<TokenPrice>> {
+        let request_body = SimpleRequest {
+            request_type: "spotMetaAndAssetCtxs".to_string(),
+        };
+
+        let response = client
+            .post(&self.url)
+            .header("Content-Type", "application/json")
+            .json(&request_body)
+            .send()
+            .await?;
+
+        if response.status().is_success() {
+            let (spot_meta, day_data) = response.json::<(SpotMetaResponse, Vec<DayData>)>().await?;
+            let mut ret: Vec<TokenPrice> = Vec::new();
+            for (i, token) in spot_meta.tokens.iter().enumerate().skip(1) {
+                let data = match day_data.get(i - 1).cloned() {
+                    Some(data) => data,
+                    None => DayData {
+                        day_ntl_vlm: "Nan".to_owned(),
+                        mark_px: "Nan".to_owned(),
+                        mid_px: "Nan".to_owned(),
+                        prev_day_px: "Nan".to_owned(),
+                    },
+                };
+                ret.push(TokenPrice {
+                    name: token.name.clone(),
+                    price: data.mark_px.clone(),
+                });
+            }
+            Ok(ret)
+        } else {
+            Err(anyhow!("Failed to get prices"))
+        }
+    }
     pub async fn fetch_spot_balances(
         &self,
         client: &Client,
         address: Address,
     ) -> Result<Vec<Balance>> {
-        let request_body = BalancesRequest {
+        let request_body = RequestWithUser {
             request_type: "spotClearinghouseState".to_string(),
             user: address.to_full_string(),
         };
@@ -213,7 +278,7 @@ impl HyperLiquidClient {
         Ok(orders_responses)
     }
     async fn fetch_open_orders(&self, client: &Client, user: Address) -> Result<Vec<OpenOrder>> {
-        let request_body = OpenOrdersRequest {
+        let request_body = RequestWithUser {
             request_type: "openOrders".to_string(),
             user: user.to_full_string(),
         };

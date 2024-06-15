@@ -1,21 +1,10 @@
-use crate::handlers::constants_callbacks::{BALANCES_MENU, SET_TOKEN_DB};
-
-use crate::handlers::constants_callbacks::REPLY_ACT;
-use crate::hyperliquid_api::orders;
-use crate::types::hyperliquid_client::{Balance, HyperLiquidNetwork, OpenOrder};
+use crate::types::hyperliquid_client::HyperLiquidNetwork;
 use crate::{get_faq_button, get_main_menu_button};
-use crate::{
-    globals::*,
-    hyperliquid_api::balances::{self},
-    vec_3_p_keys_to_address,
-};
+use crate::{globals::*, vec_3_p_keys_to_address};
 use anyhow::Result;
 use ethers::types::Address;
-use ethers_core::utils::format_units;
-use teloxide::{
-    types::User,
-    types::{InlineKeyboardButton, InlineKeyboardMarkup},
-};
+
+use teloxide::{types::InlineKeyboardMarkup, types::User};
 
 pub async fn orders_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
     let pks = WALLETS_PKEY.get_result(user.id)?;
@@ -33,7 +22,6 @@ pub async fn orders_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardM
 pub async fn display_balance(addresses: Vec<Address>) -> Result<String> {
     Ok("Display_balance".to_owned())
 }
-use crate::utils::format::format_float;
 pub async fn display_full_order(addresses: Vec<Address>) -> Result<String> {
     let client = HyperLiquidNetwork::get_client();
     let mut ret = String::new();

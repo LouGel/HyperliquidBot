@@ -6,7 +6,7 @@ use teloxide::types::{
 };
 use teloxide_core::types::Message;
 
-use crate::{expert_keyboard_markup, InlineKeyBoardHandler};
+use crate::InlineKeyBoardHandler;
 
 impl InlineKeyBoardHandler for InlineKeyboardMarkup {
     fn create_from_msg(message: &Message) -> InlineKeyboardMarkup {
@@ -29,11 +29,11 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
                 }
             }
         }
-        match activated {
-            Some(true) => self.append_rows_at_index(expert_keyboard_markup(menu_from), 7),
-            Some(false) => self.remove_rows_at_index(7, expert_keyboard_markup(menu_from).len()),
-            None => return Err(anyhow!("Couldn't activate pro mode")),
-        }
+        // match activated {
+        //     Some(true) => self.append_rows_at_index(expert_keyboard_markup(menu_from), 7),
+        //     Some(false) => self.remove_rows_at_index(7, expert_keyboard_markup(menu_from).len()),
+        //     None => return Err(anyhow!("Couldn't activate pro mode")),
+        // }
         Ok(())
     }
     fn append_rows_at_index(&mut self, rows: Vec<Vec<InlineKeyboardButton>>, index: usize) {
@@ -169,6 +169,20 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
             }
         }
         None
+    }
+    fn get_whic_order_type(&self) -> anyhow::Result<(bool, bool)> {
+        let first_button = self
+            .inline_keyboard
+            .get(0)
+            .ok_or(anyhow::anyhow!("No first keyboard value"))?
+            .get(0)
+            .ok_or(anyhow::anyhow!("No first keyboard value"))?;
+        if let CallbackData(callback_data) = first_button.kind.clone() {
+            debug!("Callback data :{}", callback_data);
+            return Ok((callback_data.contains(BUY), callback_data.contains(LIMIT)));
+        } else {
+            Err(anyhow::anyhow!("No callback data in first message"))
+        }
     }
     fn get_result_from_checked_callback_fct(&self, callback_fct: &str) -> anyhow::Result<String> {
         self.get_value_from_checked_callback_fct(callback_fct)

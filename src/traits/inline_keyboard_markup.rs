@@ -13,4 +13,5 @@ pub trait InlineKeyBoardHandler {
     fn change_text_where_callback_contains(&mut self, callback_fct: &str, new_title: &str);
     fn update_custom_fct(&mut self, custom_callback_group: String, text_to_custom: &str) -> bool;
     fn get_value_from_callback_fct(&self, callaback_fct: &str) -> Option<String>;
+    fn get_whic_order_type(&self) -> anyhow::Result<(/*is_buy */ bool, /*is_limit:*/ bool)>;
 }

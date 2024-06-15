@@ -1,16 +1,13 @@
-use ethers_core::k256::elliptic_curve::SecretKey;
-use teloxide::prelude::*;
-use teloxide_core::types::*;
-
 use super::reply_actions::*;
 use crate::bot::*;
-use crate::handlers::ResultHandler;
-use crate::hyperliquid_api::orders::cancel_order;
-use crate::hyperliquid_api::{buy_from_menu, order_from_menu, sell_from_menu};
+use crate::hyperliquid_api::orders::order_from_menu;
 use crate::menus::*;
 use crate::traits::*;
 use crate::types::*;
 use crate::utils::*;
+use ethers_core::k256::elliptic_curve::SecretKey;
+use teloxide::prelude::*;
+use teloxide_core::types::*;
 
 pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyAction) {
     let user_id_no = user.id.0 as i64;
@@ -42,16 +39,9 @@ pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyActi
             Some(("Importing private key", "Please write a private key"))
         }
         ReplyAction::SetPasswd(_) => Some(("Setting new password", "Please givew a new password")),
-        ReplyAction::SetAddress(..) => Some(("Setting new address", "Please give an address")),
         ReplyAction::SetAmountPlain(..) => Some(("Setting Amount", "Please give an amount")),
         ReplyAction::SetTokenName(_) => Some(("Setting token ", "Enter the name/no of the token")),
-        ReplyAction::SetAmountPerc(..) => {
-            Some(("Setting Amount in % ", "Please give an amount in % "))
-        }
-        ReplyAction::SetSlippage(_) => Some(("Setting Slippage", "Please give a slippage")),
         ReplyAction::SetDuration(_) => Some(("Setting Duration", "Number \\+ h/d/y")),
-        ReplyAction::SetPositivePerc(_) => Some(("Setting Limit Sell \\+%", "Percentage")),
-        ReplyAction::SetNegativePerc(_) => Some(("Setting Limit Buy \\-%", "Percentage")),
         ReplyAction::CancelOrder(..) => Some(("Enter the order id to cancel", "Order Id")),
         _ => {
             if is_passwd_set(user_id_no) {
@@ -86,39 +76,18 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
             // };
         }
 
-        ReplyAction::Buy(msg_info) => {
+        ReplyAction::ExecuteOrder(msg_info) => {
             if let Err(e) = order_from_menu(bot, &user, msg_info.keyboard).await {
                 send_error(
                     bot,
                     &user,
-                    &("Error in buy limit from menu".to_owned() + &e.to_string()),
+                    &("Error in Order from menu".to_owned() + &e.to_string()),
                 )
             } else {
                 send_message(bot, &user, "Order Created")
             }
         }
-        ReplyAction::BuyLimit(msg_info) => {
-            if let Err(e) = order_from_menu(bot, &user, msg_info.keyboard).await {
-                send_error(
-                    bot,
-                    &user,
-                    &("Error in buy limit from menu".to_owned() + &e.to_string()),
-                )
-            } else {
-                send_message(bot, &user, "Order Created")
-            }
-        }
-        ReplyAction::SellLimit(msg_info) => {
-            if let Err(e) = sell_from_limit_sell_menu(&user, msg_info.keyboard).await {
-                send_error(
-                    bot,
-                    &user,
-                    &("Error in Sell limit from menu".to_owned() + &e.to_string()),
-                )
-            } else {
-                send_message(bot, &user, "Order Created")
-            }
-        }
+
         x => send_unexpected_error(
             bot,
             &user,

@@ -62,19 +62,14 @@ pub enum ReplyAction {
     ReplaceWallet(u8), // Wallet chosen
     ImportWallet(ImportWallet),
     SetPasswd(SetPasswd), //... potentially other variants
-    SetAddress(String, MessageToReply),
     SetTokenName(MessageToReply),
-    SetAmountPlain(String, MessageToReply),       //MessageId
-    SetAmountPerc(String, MessageToReply),        //MessageId
-    SetPositivePerc(MessageToReply),              //MessageId
-    SetNegativePerc(MessageToReply),              //MessageId
-    SetSlippage(MessageToReply),                  //MessageId
-    SetDuration(MessageToReply),                  //MessageId
-    Bridge(MessageToReply),                       //MessageId
-    Buy(MessageToReply),                          //MessageId
-    BuyLimit(MessageToReply),                     //MessageId
-    SellLimit(MessageToReply),                    //MessageId
-    Sell(MessageToReply),                         //MessageId
+    SetAmountPlain(String, MessageToReply), //MessageId
+    //MessageId
+    SetDuration(MessageToReply),  //MessageId
+    Bridge(MessageToReply),       //MessageId
+    ExecuteOrder(MessageToReply), //MessageId
+    //MessageId
+    //MessageId
     Transfer(MessageToReply),                     //MessageId
     CancelOrder(CancelOrderStep, MessageToReply), //MessageId
 }
@@ -97,34 +92,19 @@ impl ReplyAction {
                 Ok(Self::ImportWallet(iw_struct))
             }
             SET_PASSWD => Ok(Self::SetPasswd(SetPasswd::default())),
-            /* ADDRESS |*/
-            SET_ADDRESS | RECEIVER | TOKEN_TO_SEND | SET_TOKEN_DB => Ok(Self::SetAddress(
-                s.to_string(),
-                MessageToReply::create_from_msg(msg)?,
-            )),
-            SET_AMOUNT_PLAIN | AMOUNT_PLAIN => Ok(Self::SetAmountPlain(
+
+            PRICE_WANTED | AMOUNT_PLAIN => Ok(Self::SetAmountPlain(
                 s.to_owned(),
                 MessageToReply::create_from_msg(msg)?,
             )),
-            SET_TOKEN_NAME => Ok(Self::SetTokenName(MessageToReply::create_from_msg(msg)?)),
-            SET_AMOUNT_PERC | AMOUNT_PERC => Ok(Self::SetAmountPerc(
-                s.to_string(),
-                MessageToReply::create_from_msg(msg)?,
-            )),
-            SET_NEGATIVE_PERC => Ok(Self::SetNegativePerc(MessageToReply::create_from_msg(msg)?)),
-            SET_POSITIVE_PERC => Ok(Self::SetPositivePerc(MessageToReply::create_from_msg(msg)?)),
-            SLIPPAGE => Ok(Self::SetSlippage(MessageToReply::create_from_msg(msg)?)),
+            TOKEN_NAME => Ok(Self::SetTokenName(MessageToReply::create_from_msg(msg)?)),
             SET_DURATION => Ok(Self::SetDuration(MessageToReply::create_from_msg(msg)?)),
-            BUY => Ok(Self::Buy(MessageToReply::create_from_msg(msg)?)),
-            SELL => Ok(Self::Sell(MessageToReply::create_from_msg(msg)?)),
-            TRANSFER => Ok(Self::Transfer(MessageToReply::create_from_msg(msg)?)),
-            BRIDGE => Ok(Self::Bridge(MessageToReply::create_from_msg(msg)?)),
-            BUY_LIMIT => Ok(Self::BuyLimit(MessageToReply::create_from_msg(msg)?)),
-            SELL_LIMIT => Ok(Self::SellLimit(MessageToReply::create_from_msg(msg)?)),
+            // MAKE_ORDERS_MENU => Ok(Self::Order(MessageToReply::create_from_msg(msg)?)),
             CANCEL_ORDER => Ok(Self::CancelOrder(
                 CancelOrderStep::default(),
                 MessageToReply::create_from_msg(msg)?,
             )),
+            EXECUTE_ORDER => Ok(Self::ExecuteOrder(MessageToReply::create_from_msg(msg)?)),
             _ => Err(anyhow!("Wrong reply action: {}", s)),
         }
     }
