@@ -82,7 +82,8 @@ pub async fn refresh_menu(bot: &Bot, user: User, menu: Vec<&str>, msg: Message) 
         match menu[1] {
             MAKE_ORDERS_MENU => {
                 if let Ok((is_buy, is_limit)) = keyboard.get_which_order_type() {
-                    spawn_order_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned()).await
+                    spawn_order_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned(), None)
+                        .await
                 } else {
                     send_unexpected_error(&bot, &user, "Error, menu dont have type".to_owned());
                 }

@@ -1,6 +1,5 @@
 use crate::handlers::constants_callbacks::*;
 use crate::DEAD_CALLBACK;
-use anyhow::anyhow;
 use teloxide::types::{
     InlineKeyboardButton, InlineKeyboardButtonKind::CallbackData, InlineKeyboardMarkup,
 };

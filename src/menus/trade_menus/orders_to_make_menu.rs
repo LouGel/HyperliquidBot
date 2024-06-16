@@ -5,7 +5,7 @@ use crate::get_wallet_from_title_and_buttons;
 use crate::globals::*;
 use crate::handlers::constants_callbacks::*;
 use crate::traits::InlineKeyBoardHandler;
-use crate::types::hyperliquid_client::{Balance, HyperLiquidNetwork};
+use crate::types::hyperliquid_client::HyperLiquidNetwork;
 use crate::vec_3_p_keys_to_address;
 use crate::{modify_message_with_buttons, send_unexpected_error};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -38,7 +38,7 @@ pub async fn make_orders_menu(
     let price = price_result?;
     let text = text_result?;
 
-    let inline_keyboard = get_order_keyboard("WAGMI", &price, is_buy, is_limit, None, None);
+    let inline_keyboard = get_order_keyboard(token_name, &price, is_buy, is_limit, None, None);
 
     Ok((text, inline_keyboard))
 }
@@ -46,12 +46,39 @@ pub async fn make_orders_menu(
 pub async fn make_orders_menu_from_keyboard(
     user: &User,
     keyboard: InlineKeyboardMarkup,
+    token_opt: Option<&str>,
 ) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
-    let token_name: String = keyboard.get_result_from_callback_fct(TOKEN_NAME)?;
     let (is_buy, is_limit) = keyboard.get_which_order_type()?;
-    let (text, _) = make_orders_menu(user.id, &token_name, is_buy, is_limit).await?;
-    // let keyboard =
+    let p_ks = WALLETS_PKEY.get_result(user.id)?;
+    let addresses = vec_3_p_keys_to_address(&p_ks);
 
+    if let Some(token) = token_opt {
+        let client = HyperLiquidNetwork::get_client();
+        let (price_result, text_result) =
+            join!(client.clone().fetch_price_for_token(token), async {
+                match (is_buy, is_limit) {
+                    (true, true) => {
+                        format_limit_buy_message(addresses.clone(), "USDC".to_owned()).await
+                    }
+                    (true, false) => format_buy_message(addresses.clone(), "USDC".to_owned()).await,
+                    (false, true) => format_limit_sell_message(addresses.clone()).await,
+                    (false, false) => format_sell_message(addresses.clone()).await,
+                }
+            });
+
+        let price = price_result?;
+        let text = text_result?;
+        let token_str = &format!("{token} ({price}$) ✏️");
+        let mut keyboard_buf = keyboard;
+        keyboard_buf.change_text_where_callback_contains(TOKEN_NAME, token_str);
+        return Ok((text, keyboard_buf));
+    }
+    let text = match (is_buy, is_limit) {
+        (true, true) => format_limit_buy_message(addresses.clone(), "USDC".to_owned()).await?,
+        (true, false) => format_buy_message(addresses.clone(), "USDC".to_owned()).await?,
+        (false, true) => format_limit_sell_message(addresses.clone()).await?,
+        (false, false) => format_sell_message(addresses.clone()).await?,
+    };
     Ok((text, keyboard))
 }
 
@@ -60,8 +87,9 @@ pub async fn spawn_order_menu_from_keyboard(
     user: &User,
     msg_id: MessageId,
     keyboard: InlineKeyboardMarkup,
+    token_opt: Option<&str>,
 ) {
-    match make_orders_menu_from_keyboard(user, keyboard).await {
+    match make_orders_menu_from_keyboard(user, keyboard, token_opt).await {
         Ok((text, keyboard)) => {
             modify_message_with_buttons(bot, user, msg_id, &text, &keyboard);
         }

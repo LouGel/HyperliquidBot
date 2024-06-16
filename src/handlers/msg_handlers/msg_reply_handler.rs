@@ -142,19 +142,26 @@ fn handle_custom_setters(
 ) {
     let msg_id = MessageId(message_to_reply.id);
     if verifier(&message_to_reply.text, input) {
-        message_to_reply
-            .keyboard
-            .change_text_where_callback_contains(callback_to_find, input);
         if callback_to_find.contains(TOKEN_NAME) {
             let bot = bot.clone();
             let user = user.clone();
+            let input = input.clone();
             tokio::spawn(async move {
                 // &format!("{desired_token} ({price_usd}$) ✏️");
-                spawn_order_menu_from_keyboard(&bot, &user, msg_id, message_to_reply.keyboard).await
+                spawn_order_menu_from_keyboard(
+                    &bot,
+                    &user,
+                    msg_id,
+                    message_to_reply.keyboard,
+                    Some(input.as_str()),
+                )
+                .await
             });
             return;
         }
-
+        message_to_reply
+            .keyboard
+            .change_text_where_callback_contains(callback_to_find, input);
         debug!(
             "Message keyboard -> {:?}, callback: {}",
             message_to_reply.keyboard, callback_to_find

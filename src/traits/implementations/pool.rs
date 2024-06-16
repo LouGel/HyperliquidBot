@@ -1,31 +1,13 @@
-use crate::AddressForBot;
 use crate::{globals::*, types::*, PKeyHandler, PoolOperation};
 use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use ethers::core::k256::SecretKey;
-use ethers::types::Address;
-use ring::error;
 use sqlx::Pool;
 use sqlx::Postgres;
 use std::collections::HashMap;
-use tokio::join;
 
 #[async_trait]
 impl PoolOperation for Pool<Postgres> {
-    //////////////////////////////////////////////////////
-    // async fn is_registered(&self, user_id_number: i64) -> bool {
-    //     let exists = sqlx::query!(
-    //         "SELECT EXISTS(SELECT 1 FROM registered WHERE userid = $1)",
-    //         user_id_number
-    //     )
-    //     .fetch_one(self)
-    //     .await
-    //     .expect("error in is registered")
-    //     .exists
-    //     .unwrap_or(false);
-    //     exists
-    // }
-
     //////////////////////////////////////////////////////
 
     async fn fetch_pks(&self) -> Result<usize> {
@@ -94,125 +76,4 @@ impl PoolOperation for Pool<Postgres> {
         }
         Ok(())
     }
-
-    // pub struct Tokens {
-    // pub tokenaddress: String,
-    // pub symbol: String,
-    // pub decimals: i32,
-    // pub chainid: i32,
-    // }
-    // async fn push_token(&self, network: &Network, token_address: Address) -> Result<String> {
-    //     let chain_id = network.chain_id as i32;
-    //     let provider = network.web3.clone().unwrap();
-    //     let (decimals, symbol_ret) = join!(
-    //         get_decimals(token_address.clone(), &provider),
-    //         get_symbol(token_address, &provider)
-    //     );
-    //     let mut symbol = symbol_ret?;
-    //     // Checking if it's in the mapping
-    //     if let Some(token) = TOKEN_BY_NAME_AND_CHAINID.get(&(symbol.clone(), chain_id as u32)) {
-    //         if token.address == token_address {
-    //             return Err(anyhow!(
-    //                 "Token {} with address {:?} already exist in db",
-    //                 symbol,
-    //                 token_address
-    //             ));
-    //         }
-    //         // *
-    //         symbol = symbol + &token_address.to_string();
-    //     } else if let Some(token) =
-    //         self // Checking if it's in the database
-    //             .fetch_token_by_symbol_and_chain_id(&symbol, chain_id)
-    //             .await?
-    //     {
-    //         let address_of_fetch_token: Address = token.tokenaddress.parse()?;
-    //         if address_of_fetch_token == token_address {
-    //             return Err(anyhow!(
-    //                 "Token {} with address {:?} already exist in db",
-    //                 symbol,
-    //                 token_address
-    //             ));
-    //         }
-    //         // * We add a small address on the sign of the token
-    //         symbol = symbol + &token_address.to_string();
-    //     };
-    //     let chain_id = network.chain_id;
-    //     let token_address_str = token_address.to_full_string().to_lowercase();
-    //     let info_name = "tokenaddress,symbol,decimals,chainid";
-    //     let values = format!(
-    //         "'{}', '{}', {}, {}",
-    //         token_address_str, symbol, decimals?, chain_id
-    //     );
-
-    //     DBTable::insert_table::<Tokens>(self, info_name, &values)
-    //         .await
-    //         .map_err(|e| anyhow!("DB error push pkeys :{:?}", e))?;
-    //     info!("Token pushed [\n{}\n{}\n]", info_name, values);
-    //     Ok(symbol)
-    // }
-    // async fn fetch_token_by_symbol_and_chain_id(
-    //     &self,
-    //     symbol: &str,
-    //     chain_id: i32,
-    // ) -> Result<Option<Tokens>> {
-    //     let query = "SELECT * FROM tokens WHERE symbol = $1 AND chainid = $2";
-    //     let rows = sqlx::query_as::<_, Tokens>(&query)
-    //         .bind(symbol)
-    //         .bind(chain_id)
-    //         .fetch_all(self)
-    //         .await?;
-
-    //     if rows.len() > 1 {
-    //         Err(anyhow!("There is {} in tokens by symbol a", rows.len()))
-    //     } else {
-    //         Ok(rows.get(0).cloned())
-    //     }
-    // }
-    // async fn get_tokens_by_chain(&self, chain_id: i32) -> Result<Vec<Tokens>> {
-    //     let query = "SELECT * FROM tokens WHERE chainid = $1";
-    //     let rows = sqlx::query_as::<_, Tokens>(&query)
-    //         .bind(chain_id)
-    //         .fetch_all(self)
-    //         .await?;
-    //     Ok(rows)
-    // }
-
-    // async fn get_token_by_address_and_chain(
-    //     &self,
-    //     token_address: Address,
-    //     chain_id: i32,
-    // ) -> Result<Option<Tokens>> {
-    //     let query = "SELECT * FROM tokens WHERE tokenaddress = $1 AND chainid = $2";
-    //     let token_str = token_address.to_full_string().to_lowercase();
-    //     let rows = sqlx::query_as::<_, Tokens>(&query)
-    //         .bind(token_str)
-    //         .bind(chain_id)
-    //         .fetch_all(self)
-    //         .await?;
-
-    //     if rows.len() > 1 {
-    //         Err(anyhow!("There is {} in tokens by address a", rows.len()))
-    //     } else {
-    //         Ok(rows.get(0).cloned())
-    //     }
-    // }
-
-    // async fn get_token_by_symbol_and_chain(
-    //     &self,
-    //     symbol: String,
-    //     chain_id: i32,
-    // ) -> Result<Option<Tokens>> {
-    //     let query = "SELECT * FROM tokens WHERE symbol = $1 AND chainid = $2";
-    //     let rows = sqlx::query_as::<_, Tokens>(&query)
-    //         .bind(symbol)
-    //         .bind(chain_id)
-    //         .fetch_all(self)
-    //         .await?;
-
-    //     if rows.len() > 1 {
-    //         Err(anyhow!("There is {} in tokens by symbol a", rows.len()))
-    //     } else {
-    //         Ok(rows.get(0).cloned())
-    //     }
-    // }
 }
