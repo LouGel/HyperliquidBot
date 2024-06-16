@@ -38,7 +38,7 @@ pub async fn display_full_order(addresses: Vec<Address>) -> Result<String> {
             };
             let order_name = TOKEN_LIST.get_result(&orders.coin)?.name.clone();
             ret += &format!(
-                "{}.{} {}[{}] at {} id({})  \n",
+                "{}.{} {}[{}] at {} ({})  \n",
                 num, type_order, orders.sz, order_name, orders.limit_px, orders.oid,
             );
             num += 1;

@@ -47,7 +47,7 @@ struct CancelOrderInfo {
 
 fn extract_order_info(text: &str, order_number: String) -> Result<CancelOrderInfo> {
     let wallet_re = Regex::new(r"Wallet (\d+)-------")?;
-    let order_re = Regex::new(r"(\d+)\.(Buy|Sell) \d+\.\d+\[(\w+)\] .* id\((\d+)\)")?;
+    let order_re = Regex::new(r"(\d+)\.(Buy|Sell) \d+\.\d+\[(\w+)\] .* \((\d+)\)")?;
     let mut current_wallet = None;
 
     for line in text.lines() {

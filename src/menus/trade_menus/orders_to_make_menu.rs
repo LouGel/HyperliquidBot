@@ -27,9 +27,9 @@ pub async fn make_orders_menu(
         join!(client.clone().fetch_price_for_token(token_name), async {
             match (is_buy, is_limit) {
                 (true, true) => {
-                    format_limit_buy_message(addresses.clone(), token_name.to_owned()).await
+                    format_limit_buy_message(addresses.clone(), "USDC".to_owned()).await
                 }
-                (true, false) => format_buy_message(addresses.clone(), token_name.to_owned()).await,
+                (true, false) => format_buy_message(addresses.clone(), "USDC".to_owned()).await,
                 (false, true) => format_limit_sell_message(addresses.clone()).await,
                 (false, false) => format_sell_message(addresses.clone()).await,
             }

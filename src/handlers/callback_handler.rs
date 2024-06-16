@@ -1,5 +1,6 @@
 use crate::globals::DEAD_CALLBACK;
 use crate::handlers::constants_callbacks::*;
+use crate::orders_to_make_menu::spawn_order_menu_from_keyboard;
 
 use teloxide::prelude::*;
 
@@ -7,7 +8,7 @@ use crate::handlers::{
     dynamic_menus_handler, msg_handlers::reply_action_handler, simple_action_handler,
     simple_menus_handler,
 };
-use crate::send_unexpected_callback_function_error;
+use crate::{send_unexpected_callback_function_error, InlineKeyBoardHandler};
 use crate::{send_unexpected_error, types::*};
 
 pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> {
@@ -78,19 +79,17 @@ use teloxide::types::User;
 
 pub async fn refresh_menu(bot: &Bot, user: User, menu: Vec<&str>, msg: Message) {
     if let Some(keyboard) = msg.reply_markup() {
-        // match menu[1] {
-        //     BUY_MENU => spawn_buy_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned()).await,
-        //     SELL_MENU => {
-        //         spawn_sell_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned()).await
-        //     }
-        //     SELL_LIMIT_MENU => {
-        //         spawn_limit_sell_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned()).await
-        //     }
-        //     BUY_LIMIT_MENU => {
-        //         spawn_order_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned()).await
-        //     }
-        //     _ => send_unexpected_callback_function_error(&bot, &user, &menu.join("_")),
-        // }
+        match menu[1] {
+            MAKE_ORDERS_MENU => {
+                if let Ok((is_buy, is_limit)) = keyboard.get_which_order_type() {
+                    spawn_order_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned()).await
+                } else {
+                    send_unexpected_error(&bot, &user, "Error, menu dont have type".to_owned());
+                }
+            }
+
+            _ => send_unexpected_callback_function_error(&bot, &user, &menu.join("_")),
+        }
     } else {
         send_unexpected_error(
             bot,

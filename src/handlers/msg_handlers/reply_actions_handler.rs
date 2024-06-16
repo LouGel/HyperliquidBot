@@ -43,7 +43,7 @@ pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyActi
         ReplyAction::SetAmountPlain(..) => Some(("Setting Amount", "Please give an amount")),
         ReplyAction::SetTokenName(_) => Some(("Setting token ", "Enter the name/no of the token")),
         ReplyAction::SetDuration(_) => Some(("Setting Duration", "Number \\+ h/d/y")),
-        ReplyAction::CancelOrder(..) => Some(("Enter the order id to cancel", "Order Id")),
+        ReplyAction::CancelOrder(..) => Some(("Enter the order no to cancel", "Order Id")),
         _ => {
             if is_passwd_set(user_id_no) {
                 ask_for_password(bot, &user, reply_action.clone()).await;

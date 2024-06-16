@@ -74,9 +74,7 @@ pub fn message_handler_reply(
 
         ReplyAction::CancelOrder(step, message_from) => match step.clone() {
             CancelOrderStep::AskForOrderNo => {
-                let mut order_no = msg_text.clone();
-                // if let Some(wallet_index) = is_a_kyber_swap_order(&message_from.text, &mut order_no)
-                // {
+                let order_no = msg_text.clone();
                 let new_action = ReplyAction::CancelOrder(
                     CancelOrderStep::AnswerOrderNo(OrderNo { no: order_no }),
                     message_from,
@@ -91,11 +89,6 @@ pub fn message_handler_reply(
                         async move { ask_for_password(&bot, &user_from, new_action).await },
                     );
                 }
-                // } else {
-                //     send_error(&bot, &user_from, "Invalid order id");
-                //     close_reply_action(user_id_number);
-                //     return Ok(());
-                // }
             }
             CancelOrderStep::AnswerOrderNo(_) => {
                 if is_correct_password(user_id_number, msg_text.clone()) {
