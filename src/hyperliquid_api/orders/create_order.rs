@@ -46,7 +46,17 @@ pub async fn order_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup
     };
     Ok(())
 }
-
+use regex::Regex;
+pub fn extract_price_usd(text: &str) -> Result<f64> {
+    let re = Regex::new(r"\(([\d\.]+)\$\)")?;
+    if let Some(caps) = re.captures(text) {
+        if let Some(price_match) = caps.get(1) {
+            let price_usd: f64 = price_match.as_str().parse()?;
+            return Ok(price_usd);
+        }
+    }
+    Err(anyhow::anyhow!("Price not found in the string"))
+}
 fn get_wallet_no_and_order_from_markup(
     keyboard: &InlineKeyboardMarkup,
 ) -> Result<(usize, ClientOrderRequest)> {
@@ -63,10 +73,18 @@ fn get_wallet_no_and_order_from_markup(
 
     let (is_buy, is_limit) = keyboard.get_which_order_type()?;
     let token = TOKEN_LIST.get_result(name)?;
-    let limit_px: f64 = keyboard
-        .get_value_from_callback_fct(PRICE_WANTED)
-        .unwrap_or("0.0".to_owned())
-        .parse()?;
+    let asset = token
+        .usdc_pair_name()
+        .ok_or(anyhow::anyhow!("Wrong token {}", token.name))?;
+
+    let limit_px: f64 = match is_limit {
+        true => keyboard
+            .get_value_from_callback_fct(PRICE_WANTED)
+            .unwrap_or("0.0".to_owned())
+            .parse()?,
+        false => extract_price_usd(&pren_name)?,
+    };
+
     let sz: f64 = keyboard
         .get_value_from_callback_fct(AMOUNT_PLAIN)
         .unwrap_or("0.0".to_owned())
@@ -75,17 +93,20 @@ fn get_wallet_no_and_order_from_markup(
         true => ClientOrder::Limit(ClientLimit {
             tif: "Gtc".to_string(),
         }),
-        false => ClientOrder::Trigger(ClientTrigger {
-            is_market: !is_limit,
-            tpsl: "idk".to_owned(),
-            trigger_px: 0.0,
-        }),
+        false => {
+            let (tpsl, trigger_px) = match is_buy {
+                true => ("tp".to_owned(), limit_px * 0.95),
+                false => ("sl".to_owned(), limit_px * 1.05),
+            };
+
+            ClientOrder::Trigger(ClientTrigger {
+                is_market: true,
+                tpsl,
+                trigger_px,
+            })
+        }
     };
     debug!("sz = {}", sz);
-
-    let asset = token
-        .usdc_pair_name()
-        .ok_or(anyhow::anyhow!("Wrong token {}", token.name))?;
 
     let order = ClientOrderRequest {
         asset,
