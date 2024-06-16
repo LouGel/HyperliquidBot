@@ -51,7 +51,7 @@ impl TOKEN_LIST {
                 )
             })?
             .get(token_name)
-            .ok_or(anyhow!("Couldn't access pk for user {}", token_name))?
+            .ok_or(anyhow!("Couldn't access TOKEN for user {}", token_name))?
             .clone())
     }
 }

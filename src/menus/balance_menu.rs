@@ -18,10 +18,6 @@ pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboard
     Ok((text, get_balance_keyboard()))
 }
 
-pub async fn display_balance(addresses: Vec<Address>) -> Result<String> {
-    Ok("Display_balance".to_owned())
-}
-use crate::utils::format::format_float;
 pub async fn display_full_balance(addresses: Vec<Address>) -> Result<String> {
     let client = HyperLiquidNetwork::get_client();
     let mut ret = String::new();
@@ -29,7 +25,7 @@ pub async fn display_full_balance(addresses: Vec<Address>) -> Result<String> {
     for (i, wallet) in balances.iter().enumerate() {
         ret += &format!("\n<b>Wallet {i}-------\n</b>");
         let mut entered_loop = false;
-        for (balance) in wallet.iter() {
+        for balance in wallet.iter() {
             entered_loop = true;
             ret += &format!("{} : {} \n", balance.coin, balance.total)
         }
@@ -37,6 +33,22 @@ pub async fn display_full_balance(addresses: Vec<Address>) -> Result<String> {
             ret += &format!("<i>Empty</i>");
         }
     }
+    Ok(ret)
+}
+use crate::types::hyperliquid_client::Balance;
+pub async fn display_token_balance(addresses: Vec<Address>, token: String) -> Result<String> {
+    let client = HyperLiquidNetwork::get_client();
+    let mut ret = format!("\n<b>Your {token} balance</b>\n");
+    let balances_raw = client.fetch_spot_balance_for_addresses(&addresses).await?;
+    for (i, balances) in balances_raw.iter().enumerate() {
+        let usdc_balance: Vec<&Balance> = balances.iter().filter(|x| x.coin == token).collect();
+        let bal = match usdc_balance.first() {
+            Some(balance) => balance.total.clone(),
+            None => "0".to_owned(),
+        };
+        ret += &format!("W{i}: {bal}\n");
+    }
+
     Ok(ret)
 }
 

@@ -17,7 +17,7 @@ use ethers_signer::wallet;
 use teloxide::prelude::*;
 use teloxide::types::*;
 use url::Url;
-pub async fn order_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup) -> Result<Url> {
+pub async fn order_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup) -> Result<()> {
     let (wallet_no, order) = get_wallet_no_and_order_from_markup(&menu)?;
     let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_no)?;
     let str = pk.to_hex_string();
@@ -44,7 +44,7 @@ pub async fn order_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup
         ExchangeDataStatus::Resting(order) => order.oid,
         _ => panic!("Error: {status:?}"),
     };
-    Ok(Url::from_str(&oid.to_string())?)
+    Ok(())
 }
 
 fn get_wallet_no_and_order_from_markup(
@@ -53,7 +53,7 @@ fn get_wallet_no_and_order_from_markup(
     let pren_name = keyboard.get_result_from_callback_fct(TOKEN_NAME)?;
 
     let name = &pren_name
-        .split("_")
+        .split(" ")
         .nth(0)
         .ok_or(anyhow::anyhow!("Couldn't get token name {pren_name}"))?;
     let wallet = keyboard
@@ -61,7 +61,7 @@ fn get_wallet_no_and_order_from_markup(
         .clean_and_parse_to_usize()?
         - 1;
 
-    let (is_buy, is_limit) = keyboard.get_whic_order_type()?;
+    let (is_buy, is_limit) = keyboard.get_which_order_type()?;
     let token = TOKEN_LIST.get_result(name)?;
     let limit_px: f64 = keyboard
         .get_value_from_callback_fct(PRICE_WANTED)

@@ -13,7 +13,7 @@ pub struct SetPasswd {
 }
 #[derive(Clone, Debug)]
 pub struct OrderNo {
-    pub wallet_index: usize,
+    // pub wallet_index: usize,
     pub no: String,
 }
 #[derive(Clone, Default, Debug)]

@@ -1,5 +1,6 @@
 use super::reply_actions::*;
 use crate::bot::*;
+use crate::hyperliquid_api::cancel_from_menu;
 use crate::hyperliquid_api::orders::order_from_menu;
 use crate::menus::*;
 use crate::traits::*;
@@ -65,15 +66,24 @@ pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyActi
 
 pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
     match action.clone() {
-        ReplyAction::CancelOrder(step, _) => {
-            // match cancel_order(user.id, action).await {
-            //     Ok(()) => send_message(bot, &user, "Order cancelled successfully"),
-            //     Err(e) => send_unexpected_error(
-            //         bot,
-            //         &user,
-            //         format!("Error canceling order {:?} -> {}", step, e.to_string()),
-            //     ),
-            // };
+        ReplyAction::CancelOrder(step, msg) => {
+            match step.clone() {
+                CancelOrderStep::AnswerOrderNo(no) => {
+                    match cancel_from_menu(&user, &msg.text, no.no).await {
+                        Ok(()) => send_message(bot, &user, "Order cancelled successfully"),
+                        Err(e) => send_unexpected_error(
+                            bot,
+                            &user,
+                            format!("Error canceling order {:?} -> {}", step, e.to_string()),
+                        ),
+                    }
+                }
+                CancelOrderStep::AskForOrderNo => send_unexpected_error(
+                    bot,
+                    &user,
+                    format!("Error canceling order wrong step -> {:?}", step,),
+                ),
+            };
         }
 
         ReplyAction::ExecuteOrder(msg_info) => {
@@ -81,7 +91,7 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
                 send_error(
                     bot,
                     &user,
-                    &("Error in Order from menu".to_owned() + &e.to_string()),
+                    &("Error in Order from menu :".to_owned() + &e.to_string()),
                 )
             } else {
                 send_message(bot, &user, "Order Created")

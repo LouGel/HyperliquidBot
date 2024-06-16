@@ -75,30 +75,27 @@ pub fn message_handler_reply(
         ReplyAction::CancelOrder(step, message_from) => match step.clone() {
             CancelOrderStep::AskForOrderNo => {
                 let mut order_no = msg_text.clone();
-                if let Some(wallet_index) = is_a_kyber_swap_order(&message_from.text, &mut order_no)
-                {
-                    let new_action = ReplyAction::CancelOrder(
-                        CancelOrderStep::AnswerOrderNo(OrderNo {
-                            wallet_index,
-                            no: order_no,
-                        }),
-                        message_from,
-                    );
+                // if let Some(wallet_index) = is_a_kyber_swap_order(&message_from.text, &mut order_no)
+                // {
+                let new_action = ReplyAction::CancelOrder(
+                    CancelOrderStep::AnswerOrderNo(OrderNo { no: order_no }),
+                    message_from,
+                );
 
-                    if !is_passwd_set(user_id_number) {
-                        tokio::spawn(async move {
-                            handle_send_tx_action(new_action, &bot, user_from).await
-                        });
-                    } else {
-                        tokio::spawn(async move {
-                            ask_for_password(&bot, &user_from, new_action).await
-                        });
-                    }
+                if !is_passwd_set(user_id_number) {
+                    tokio::spawn(async move {
+                        handle_send_tx_action(new_action, &bot, user_from).await
+                    });
                 } else {
-                    send_error(&bot, &user_from, "Invalid order id");
-                    close_reply_action(user_id_number);
-                    return Ok(());
+                    tokio::spawn(
+                        async move { ask_for_password(&bot, &user_from, new_action).await },
+                    );
                 }
+                // } else {
+                //     send_error(&bot, &user_from, "Invalid order id");
+                //     close_reply_action(user_id_number);
+                //     return Ok(());
+                // }
             }
             CancelOrderStep::AnswerOrderNo(_) => {
                 if is_correct_password(user_id_number, msg_text.clone()) {
@@ -155,22 +152,27 @@ fn handle_custom_setters(
         message_to_reply
             .keyboard
             .change_text_where_callback_contains(callback_to_find, input);
+        if callback_to_find.contains(TOKEN_NAME) {
+            let bot = bot.clone();
+            let user = user.clone();
+            tokio::spawn(async move {
+                // &format!("{desired_token} ({price_usd}$) ✏️");
+                spawn_order_menu_from_keyboard(&bot, &user, msg_id, message_to_reply.keyboard).await
+            });
+            return;
+        }
+
         debug!(
             "Message keyboard -> {:?}, callback: {}",
             message_to_reply.keyboard, callback_to_find
         );
-
-        // if !callback_to_find.contains(WALLET) {
-        //     message_to_reply
-        //         .keyboard
-        //         .update_custom_fct(callback_to_find.to_string(), input);
-        // }
-
-        let bot = bot.clone();
-        let user = user.clone();
-        tokio::spawn(async move {
-            spawn_order_menu_from_keyboard(&bot, &user, msg_id, message_to_reply.keyboard).await
-        });
+        modify_message_with_buttons(
+            bot,
+            user,
+            msg_id,
+            &message_to_reply.text,
+            &message_to_reply.keyboard,
+        )
     } else {
         send_error(&bot, &user, error_message);
     }

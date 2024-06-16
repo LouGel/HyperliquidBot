@@ -170,7 +170,7 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
         }
         None
     }
-    fn get_whic_order_type(&self) -> anyhow::Result<(bool, bool)> {
+    fn get_which_order_type(&self) -> anyhow::Result<(bool, bool)> {
         let first_button = self
             .inline_keyboard
             .get(0)

@@ -1,106 +1,71 @@
-// // use crate::hyperliquid_api::{SecretKeyLimitOrder, SignOrderMsgResponse};
-// use crate::{
-//     AddressForBot, CancelOrderStep, InlineKeyBoardHandler, PKeyHandler, ReplyAction, WALLETS_PKEY,
-// };
-// use anyhow::anyhow;
+use regex::Regex;
 
-// use ethers::types::transaction::eip712::TypedData;
+use crate::globals::*;
+use hyperliquid_rust_sdk::{BaseUrl, ClientCancelRequest, ExchangeClient};
 
-// use crate::handlers::constants_callbacks::*;
-// use teloxide::types::UserId;
+use crate::traits::PKeyHandler;
+use anyhow::Result;
 
-// use reqwest::Client;
-// use serde::Serialize;
-// #[derive(Serialize, Debug)]
-// #[serde(rename_all = "camelCase")]
-// pub struct CancelOrderSignRequest {
-//     pub chain_id: String,
-//     pub maker: String,
-//     pub order_ids: Vec<i32>, // Order IDs to cancel
-// }
-// impl CancelOrderSignRequest {
-//     pub async fn get(&self) -> anyhow::Result<TypedData> {
-//         let client = Client::new();
+use teloxide::types::*;
 
-//         let res = client
-//             .post("https://limit-order.kyberswap.com/write/api/v1/orders/cancel-sign")
-//             .header("User-Agent", "curl/7.64.1")
-//             .header("x-client-id", "HyperliquidX")
-//             .json(self)
-//             .send()
-//             .await
-//             .map_err(|e| anyhow!("Error in get signature {}", e.to_string()))?;
+pub async fn cancel_from_menu(user: &User, text: &str, order_number: String) -> Result<()> {
+    let order_info = extract_order_info(text, order_number)?;
+    let pk = WALLETS_PKEY.get_pk_for_index(user.id, order_info.wallet_index)?;
+    let str = pk.to_hex_string();
+    let asset = TOKEN_LIST
+        .get_result(&order_info.token_name)?
+        .usdc_pair_name()
+        .ok_or(anyhow::anyhow!(
+            "Error Asset{} pair found",
+            order_info.token_name
+        ))?;
+    let exchange_client = ExchangeClient::new(
+        None,
+        str.parse().unwrap(),
+        Some(BaseUrl::Mainnet),
+        None,
+        None,
+        None,
+    )
+    .await?;
 
-//         if !res.status().is_success() {
-//             let status = res.status();
-//             // let body = res.text().await.unwrap_or_default();
-//             return Err(anyhow!(
-//                 "Wrong status  for fetch orders status :{}",
-//                 status.as_u16()
-//             ));
-//         }
-//         let body = res.text().await.expect("Failed to read response text");
-//         let api_response: SignOrderMsgResponse = serde_json::from_str(&body)
-//             .map_err(|e| anyhow!("Failed to parse response: {} with body {}", e, body))?;
-//         Ok(api_response.data)
-//     }
-//     pub fn create_order_request(self, signature: String) -> CancelOrderRequest {
-//         let CancelOrderSignRequest {
-//             chain_id,
-//             maker,
-//             order_ids,
-//         } = self;
-//         CancelOrderRequest {
-//             chain_id,
-//             maker,
-//             order_ids,
-//             signature,
-//         }
-//     }
-// }
+    let cancel = ClientCancelRequest {
+        asset,
+        oid: order_info.order_id,
+    };
+    exchange_client.cancel(cancel, None).await?;
+    Ok(())
+}
 
-// #[derive(Serialize, Debug)]
-// #[serde(rename_all = "camelCase")]
-// pub struct CancelOrderRequest {
-//     pub chain_id: String,
-//     pub maker: String,
-//     pub order_ids: Vec<i32>,
-//     pub signature: String, // Signed message
-// }
-// use serde_json::to_string;
+#[derive(Debug)]
+struct CancelOrderInfo {
+    wallet_index: usize,
+    order_type: String,
+    token_name: String,
+    order_id: u64,
+}
 
-// impl CancelOrderRequest {
-//     pub async fn post(&self) -> anyhow::Result<()> {
-//         let client = Client::new();
+fn extract_order_info(text: &str, order_number: String) -> Result<CancelOrderInfo> {
+    let wallet_re = Regex::new(r"Wallet (\d+)-------")?;
+    let order_re = Regex::new(r"(\d+)\.(Buy|Sell) \d+\.\d+\[(\w+)\] .* id\((\d+)\)")?;
+    let mut current_wallet = None;
 
-//         let res = client
-//             .post("https://limit-order.kyberswap.com/write/api/v1/orders/cancel")
-//             .json(&self)
-//             .header("User-Agent", "curl/7.64.1")
-//             .header("x-client-id", "HyperliquidX")
-//             .send()
-//             .await
-//             .map_err(|e| anyhow!("Error in get signature {}", e.to_string()))?;
-//         if !res.status().is_success() {
-//             let status = res.status();
-//             // let body = res.text().await.unwrap_or_default();
-//             return Err(anyhow!(
-//                 "Wrong status  for fetch orders status :{}",
-//                 status.as_u16()
-//             ));
-//         }
-//         Ok(())
-//     }
-// }
+    for line in text.lines() {
+        if let Some(wallet_caps) = wallet_re.captures(line) {
+            current_wallet = Some(wallet_caps[1].parse::<usize>()? - 1);
+        } else if let Some(order_caps) = order_re.captures(line) {
+            if order_caps[1] == order_number {
+                if let Some(wallet_index) = current_wallet {
+                    return Ok(CancelOrderInfo {
+                        wallet_index,
+                        order_type: order_caps[2].to_string(),
+                        token_name: order_caps[3].to_string(),
+                        order_id: order_caps[4].parse::<u64>()?,
+                    });
+                }
+            }
+        }
+    }
 
-// pub async fn cancel_order(user_id: UserId, action: ReplyAction) -> anyhow::Result<()> {
-//     // Directly pattern match on the action to destructure it for CancelOrder
-//     if let ReplyAction::CancelOrder(CancelOrderStep::AnswerOrderNo(order_no), message_from) = action
-//     {
-//         let p_key = WALLETS_PKEY.get_pk_for_index(user_id, order_no.wallet_index)?;
-//         todo!("Cancel order");
-//         Ok(())
-//     } else {
-//         Err(anyhow!("Invalid action for cancel_order: {:?}", action))
-//     }
-// }
+    Err(anyhow::anyhow!("Order number {} not found.", order_number))
+}

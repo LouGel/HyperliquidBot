@@ -4,18 +4,22 @@ pub fn is_good_amount_format(_text: &str, msg: &mut String) -> bool {
         Err(_) => false,
     }
 }
-pub fn is_good_token_name_or_number(text: &str, msg: &mut String) -> bool {
-    if let None = extract_word_after_number(text, msg) {
-        return is_good_token_name(text, msg);
+pub fn is_good_token_name_or_number(_text: &str, msg: &mut String) -> bool {
+    // if let None = extract_word_after_number(text, msg) {
+    if let Ok(ret) = TOKEN_LIST.get_result(&msg.to_uppercase()) {
+        *msg = ret.name.to_owned();
+        return true;
     }
-    true
+    false
 }
-pub fn is_good_token_name(text: &str, msg: &mut String) -> bool {
-    msg.make_ascii_uppercase();
-    is_data_in_tokens_balance(text, msg)
-}
+// pub fn is_good_token_name(text: &str, msg: &mut String) -> bool {
+//     msg.make_ascii_uppercase();
+//     is_data_in_tokens_balance(text, msg)
+// }
 
 use regex::Regex;
+
+use crate::TOKEN_LIST;
 pub fn is_data_in_tokens_balance(input: &str, to_check: &str) -> bool {
     Regex::new(r"\d+\.\s*([^\d\s]+(?:\.[^\d\s]+)*)")
         .unwrap()
