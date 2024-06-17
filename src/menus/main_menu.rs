@@ -37,7 +37,7 @@ Buy, sell and interact with HyperLiquidX spot ecosystem anywhere, anytime.\n\n\
             None => "0".to_owned(),
         };
         text += &format!(
-            "<b>👛 Wallet {}⬩w{}</b>\n\
+            "<b>💰 Wallet {}⬩w{}</b>\n\
     <b>Balance: <code>{} USDC</code> ⬩</b>\n\
     <b>Address: <code>{}</code></b>\n\n\"",
             index + 1,

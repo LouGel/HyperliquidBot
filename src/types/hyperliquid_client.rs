@@ -167,8 +167,7 @@ impl HyperLiquidClient {
     pub async fn fetch_price_for_token(self, token: &str) -> Result<String> {
         let token = TOKEN_LIST.get_result(token)?;
 
-        let client = Client::new();
-        let prices = self.fetch_prices(&client).await?;
+        let prices = self.fetch_prices().await?;
 
         Ok(prices
             .iter()
@@ -177,7 +176,8 @@ impl HyperLiquidClient {
             .price
             .clone())
     }
-    pub async fn fetch_prices(&self, client: &Client) -> Result<Vec<TokenPrice>> {
+    pub async fn fetch_prices(&self) -> Result<Vec<TokenPrice>> {
+        let client = Client::new();
         let request_body = SimpleRequest {
             request_type: "spotMetaAndAssetCtxs".to_string(),
         };

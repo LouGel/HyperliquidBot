@@ -1,6 +1,6 @@
+use crate::get_refresh_button;
 use crate::handlers::constants_callbacks::*;
 use crate::types::hyperliquid_client::HyperLiquidNetwork;
-use crate::{get_faq_button, get_main_menu_button, get_refresh_button};
 use crate::{globals::*, vec_3_p_keys_to_address};
 use anyhow::Result;
 use ethers::types::Address;
@@ -34,12 +34,15 @@ pub async fn display_full_order(addresses: Vec<Address>) -> Result<String> {
             entered_loop = true;
 
             let order_name = TOKEN_LIST.get_result(&orders.coin)?.name.clone();
+            let sz: f64 = orders.sz.parse()?;
+            let price: f64 = orders.limit_px.parse()?;
             let order_str = &format!(
-                "No {}: {} ${} at {}$ <i>oid({})</i>\n",
+                "No {}: {} ${} at {}$ each for a TVL of {:.2}$  <i>oid({})</i>\n",
                 num,
-                orders.sz.trim_end_matches(".0").to_string(),
+                orders.sz.trim_end_matches(".0"),
                 order_name,
-                orders.limit_px.trim_end_matches(".0").to_string(),
+                orders.limit_px.trim_end_matches(".0"),
+                sz * price,
                 orders.oid,
             );
             match orders.side.as_ref() {
@@ -62,10 +65,10 @@ pub async fn display_full_order(addresses: Vec<Address>) -> Result<String> {
     }
     Ok(ret)
 }
-
+use crate::get_back_and_faq_banner;
 pub fn get_orders_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
-        vec![get_main_menu_button(), get_faq_button()],
+        get_back_and_faq_banner(TRADE_MENU),
         vec![InlineKeyboardButton::callback(
             "Cancel order",
             &format!("{REPLY_ACT}_{CANCEL_ORDER}"),

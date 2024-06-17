@@ -1,11 +1,9 @@
-use std::fmt::format;
-
 use crate::handlers::constants_callbacks::BALANCES_MENU;
 use crate::types::hyperliquid_client::HyperLiquidNetwork;
-use crate::{get_faq_button, get_main_menu_button};
 use crate::{globals::*, vec_3_p_keys_to_address};
 use anyhow::Result;
 use ethers::types::Address;
+use std::collections::HashMap;
 use teloxide::{types::InlineKeyboardMarkup, types::User};
 
 pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
@@ -23,9 +21,18 @@ pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboard
 
 pub async fn display_full_balance(addresses: Vec<Address>, need_total: bool) -> Result<String> {
     let client = HyperLiquidNetwork::get_client();
+    let client_2 = HyperLiquidNetwork::get_client();
     let mut ret = String::new();
-    let balances = client.fetch_spot_balance_for_addresses(&addresses).await?;
-    for (i, wallet) in balances.iter().enumerate() {
+    let (balances, prices) = tokio::join!(
+        client.fetch_spot_balance_for_addresses(&addresses),
+        client_2.fetch_prices()
+    );
+    let mut hash_map: HashMap<String, f64> = HashMap::new();
+
+    // let (prices, balances) = (prices?, balances?);
+    let prices = prices?;
+
+    for (i, wallet) in balances?.iter().enumerate() {
         ret += &format!("\n<b>Wallet {}-------\n</b>", i + 1);
         let mut entered_loop = false;
         for balance in wallet.iter() {
@@ -34,18 +41,30 @@ pub async fn display_full_balance(addresses: Vec<Address>, need_total: bool) -> 
                 balance.total.clone().parse()?,
             );
             let bal_free = bal_total - bal_locked;
-            let total_str = match need_total {
-                false => "".to_owned(),
-                true => format!("total:{:.2}", bal_total),
+
+            let mut price = 0.0;
+
+            for price_info in prices.iter() {
+                debug!("name : {}, coin : {}", price_info.name, balance.coin);
+                if price_info.name == balance.coin {
+                    price = price_info.price.parse::<f64>()?;
+                }
+            }
+            let total_price = match balance.coin.as_ref() {
+                "USDC" => bal_total,
+                _ => bal_total * price,
             };
             entered_loop = true;
             ret += &format!(
-                "{} :  {:.2} (🔒{:.2}) {}\n",
-                balance.coin, bal_free, bal_locked, total_str
+                "{} :  {:.2} (🔒{:.2}): <b>{:.2}$</b>\n",
+                balance.coin.to_ascii_uppercase(),
+                bal_free,
+                bal_locked,
+                total_price
             );
-            if !entered_loop {
-                ret += &format!("<i>Empty</i>");
-            }
+        }
+        if !entered_loop {
+            ret += &format!("<i>Empty</i>");
         }
     }
     Ok(ret)
@@ -73,10 +92,12 @@ pub async fn display_token_balance(addresses: Vec<Address>, token: String) -> Re
 
     Ok(ret)
 }
+use crate::get_back_and_faq_banner;
 use crate::get_refresh_button;
+use crate::handlers::constants_callbacks::TRADE_MENU;
 pub fn get_balance_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
-        vec![get_main_menu_button(), get_faq_button()],
+        get_back_and_faq_banner(TRADE_MENU),
         vec![get_refresh_button(BALANCES_MENU)],
     ])
 }

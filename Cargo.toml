@@ -38,9 +38,8 @@ ethers-contract = "2.0.13"
 ethers_signer = "0.2.2"
 ahash = { version = "0.8.11" }
 futures = "0.3.30"
-rpassword = "7.3.1"
-simplelog = "0.12.2"
-env_logger = "0.11.3"
+
+
 # hyperliquid_rust_sdk = "0.4.0"
 
 # [patch.crates-io]
