@@ -16,9 +16,7 @@ use globals::*;
 use handlers::{callback_handler, commands_handler, message_handler};
 use init::init_omni_bot;
 use menus::*;
-use rpassword::read_password;
 use std::env;
-use std::io::{self, Write};
 use std::sync::Arc;
 use teloxide::{prelude::*, types::ChatKind};
 use traits::*;
@@ -30,10 +28,6 @@ extern crate log;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
-    print!("Please enter your encryption key: ");
-    io::stdout().flush().unwrap(); // Ensure the prompt is displayed
-    let encryption_key = read_password().unwrap();
-    env::set_var("SECRET_ENCRYPTION_KEY", encryption_key);
     pretty_env_logger::init_timed();
     info!("Checking env variables");
     check_env();
@@ -44,6 +38,7 @@ async fn main() {
     }
     // Check if okay
     info!("Bot instanciation");
+    warn!("Bot instanciation");
     let bot = Bot::from_env();
     init_omni_bot().await;
     // Here we create a dependancy map : first branch take message (Comand ex:\start , and simple ones) , second is the callback handler
@@ -58,7 +53,7 @@ async fn main() {
 
     Dispatcher::builder(bot, handler)
         .default_handler(|upd| async move {
-            log::warn!("Unhandled update: {:?}", upd);
+            warn!("Unhandled update: {:?}", upd);
         })
         .error_handler(LoggingErrorHandler::with_custom_text(
             "An error has occurred in the dispatcher",

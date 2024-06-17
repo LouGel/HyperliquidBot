@@ -13,7 +13,6 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
     }
 
     fn update_green_checks_on_buttons(&mut self, action: String, value_to_find: String) -> bool {
-        debug!("Action : {}", action);
         for row in &mut self.inline_keyboard {
             for button in row {
                 if let CallbackData(callback_data) = &button.kind {
@@ -29,7 +28,6 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
                     }
                     if let CallbackData(callback_data) = &button.kind {
                         let new_callback_data = callback_data.replace(DEAD_CALLBACK, "");
-                        debug!("New callback data for older value : {}", new_callback_data);
                         if callback_data.contains(CUSTOM) {
                             button_text = "Custom".to_owned();
                         } else {
@@ -42,7 +40,6 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
                         let button_text_buffer = format!("✅ {}", button.text);
                         let mut new_callback_data = callback_data.to_string();
                         new_callback_data.push('!');
-                        debug!("New callback data  for value pusher: {}", new_callback_data);
 
                         *button =
                             InlineKeyboardButton::callback(button_text_buffer, new_callback_data);
@@ -79,7 +76,6 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
             for button in row.iter() {
                 if let CallbackData(data) = &button.kind {
                     if data.contains(&callback_fct) && button.text.contains('✅') {
-                        debug!("Button text : {}", button.text);
                         return Some(button.text.replace("✅ ", ""));
                     }
                 }
@@ -95,7 +91,6 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
             .get(0)
             .ok_or(anyhow::anyhow!("No first keyboard value"))?;
         if let CallbackData(callback_data) = first_button.kind.clone() {
-            debug!("Callback data :{}", callback_data);
             return Ok((callback_data.contains(BUY), callback_data.contains(LIMIT)));
         } else {
             Err(anyhow::anyhow!("No callback data in first message"))
@@ -107,7 +102,6 @@ impl InlineKeyBoardHandler for InlineKeyboardMarkup {
     }
 
     fn change_text_where_callback_contains(&mut self, callback_fct: &str, new_title: &str) {
-        debug!("In change text where callback contain {callback_fct}, {new_title}");
         for row in self.inline_keyboard.iter_mut() {
             for button in row.iter_mut() {
                 if let CallbackData(data) = &button.kind {

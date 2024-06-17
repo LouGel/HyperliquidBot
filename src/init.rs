@@ -46,7 +46,7 @@ pub async fn update_token_list() -> Result<()> {
             token_map.insert(pair, token_arc);
         }
     }
-    debug!("Tokens updated");
+    info!("Tokens updated");
     Ok(())
 }
 

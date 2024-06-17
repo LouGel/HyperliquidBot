@@ -20,8 +20,6 @@ pub async fn message_handler(bot: Bot, msg: Message) -> anyhow::Result<()> {
         bot.send_message(user.id, "Successfully registered ")
             .await?;
     } else if let MessageKind::Common(msg_common) = msg.clone().kind {
-        debug!("Here");
-
         if let Some(reply_to) = msg_common.reply_to_message {
             parse_message_reply(&bot, &msg, &user, &reply_to)?;
         }

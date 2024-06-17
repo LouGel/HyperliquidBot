@@ -74,7 +74,6 @@ use anyhow::{anyhow, Result};
 impl ReplyAction {
     //TODO check i i can do it by initiating with message
     pub fn from_str(s: &str, msg: &Message, wallet_no: &str) -> Result<Self> {
-        debug!("Replace from str {s} with msg {:?}", msg.text());
         match s {
             SHOW_PK => Ok(Self::ShowPk),
             REPLACE_WALLET => {

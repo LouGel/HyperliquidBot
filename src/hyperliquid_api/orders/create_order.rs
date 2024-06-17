@@ -62,29 +62,19 @@ async fn get_wallet_index_and_order_from_markup(
         false => client.fetch_price_for_token(&name).await?.parse::<f64>()?,
     };
 
-    let sz: f64 = keyboard
+    let pre_sz: f64 = keyboard
         .get_value_from_callback_fct(AMOUNT_PLAIN)
-        .unwrap_or("0.0".to_owned())
+        .ok_or(anyhow!("Could get amount from menu"))?
         .parse()?;
+    let sz = match is_buy {
+        true => format_sz(pre_sz / limit_px, token.sz_decimals).parse::<f64>()?,
+        false => pre_sz,
+    };
     let order_type = match is_limit {
         true | false => ClientOrder::Limit(ClientLimit {
             tif: "Gtc".to_string(),
         }),
-        // !!! To keep in case Hyperliquid wants to add Trigger trading for spots !!
-        // false => {
-        //     let (tpsl, trigger_px) = match is_buy {
-        //         true => ("tp".to_owned(), limit_px * 0.95),
-        //         false => ("sl".to_owned(), limit_px * 1.05),
-        //     };
-
-        //     ClientOrder::Trigger(ClientTrigger {
-        //         is_market: true,
-        //         tpsl,
-        //         trigger_px,
-        //     })
-        // }
     };
-
     let order = ClientOrderRequest {
         asset,
         is_buy,
@@ -94,5 +84,18 @@ async fn get_wallet_index_and_order_from_markup(
         cloid: None,
         order_type,
     };
+    // info!("Order {:#?}", order);
     Ok((wallet_index, order))
+}
+
+pub fn format_sz(number: f64, decimals: u32) -> String {
+    let d = decimals as usize;
+    let format_string = format!("{}", number);
+    let two_args: Vec<&str> = format_string.split('.').collect();
+    let new_dec = match two_args[1].len() > d {
+        true => two_args[1][..d].to_owned(),
+        false => two_args[1].to_owned(),
+    };
+    let two_new_args = vec![two_args[0].to_owned(), new_dec];
+    two_new_args.join(".")
 }

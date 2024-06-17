@@ -147,15 +147,15 @@ pub fn get_order_keyboard(
     price: Option<String>,
 ) -> InlineKeyboardMarkup {
     let (wallet_title, wallet_buttons) = get_wallet_from_title_and_buttons(MAKE_ORDERS_MENU);
-    let (_, buy_str) = match is_buy {
+    let (token_str, buy_str) = match is_buy {
         true => ("USD".to_owned(), "Buy".to_owned()),
-        false => ("desired_token".to_owned(), "Sell".to_owned()),
+        false => ("TOKEN".to_owned(), "Sell".to_owned()),
     };
     let limit_str = match is_limit {
         true => LIMIT.to_owned(),
         false => MARKET.to_owned(),
     };
-    let amount_str = amount.unwrap_or_else(|| "Amount".to_owned());
+    let amount_str = amount.unwrap_or_else(|| "-".to_owned());
 
     let mut keyboard = vec![
         vec![InlineKeyboardButton::callback(
@@ -166,10 +166,16 @@ pub fn get_order_keyboard(
         vec![get_refresh_button(MAKE_ORDERS_MENU)],
         vec![wallet_title],
         wallet_buttons,
-        vec![InlineKeyboardButton::callback(
-            &format!("{amount_str} ✏️"),
-            &format!("{REPLY_ACT}_{MAKE_ORDERS_MENU}_{AMOUNT_PLAIN}"),
-        )],
+        vec![
+            InlineKeyboardButton::callback(
+                &format!("AMOUNT IN {token_str}"),
+                &format!("{DEAD_CALLBACK}"),
+            ),
+            InlineKeyboardButton::callback(
+                &format!("{amount_str} ✏️"),
+                &format!("{REPLY_ACT}_{MAKE_ORDERS_MENU}_{AMOUNT_PLAIN}"),
+            ),
+        ],
     ];
 
     if is_limit {

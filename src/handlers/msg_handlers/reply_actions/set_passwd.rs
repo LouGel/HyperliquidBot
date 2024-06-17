@@ -13,8 +13,6 @@ pub async fn handle_set_passwd_action(
     mut set_psswd_struct: SetPasswd,
     msg_text: String,
 ) -> anyhow::Result<()> {
-    debug!("Entering SetPasswd");
-
     if set_psswd_struct.passwd_given_twice {
         if is_correct_password(user_id_number, msg_text) {
             let _ = set_passwd(user_id_number, set_psswd_struct.first_password.unwrap()).await;

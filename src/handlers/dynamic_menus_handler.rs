@@ -1,5 +1,5 @@
-use crate::bot::modify_buttons;
 use crate::traits::InlineKeyBoardHandler;
+use crate::{bot::modify_buttons, send_unexpected_error};
 use teloxide::{
     prelude::*,
     types::{InlineKeyboardMarkup, User},
@@ -18,10 +18,9 @@ pub async fn dynamic_menus_handler(
             menu[menu.len() - 2].to_string(),
             menu.last().unwrap().to_string(),
         ) {
-            debug!("Modified !",);
             modify_buttons(bot, user.id, msg.id, keyboard);
         } else {
-            debug!("NOT Modified !",);
+            send_unexpected_error(bot, &user, format!("wrong callback {:?}", menu))
         }
     }
     Ok(())

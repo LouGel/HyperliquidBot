@@ -17,7 +17,6 @@ pub async fn commands_handler(bot: Bot, msg: Message, cmd: Command) -> anyhow::R
     match cmd {
         Command::Start => {
             if !is_registered(&user.id) {
-                debug!("Not  registered");
                 create_user(&msg).await;
                 bot.send_message(
                     user.id,
@@ -25,12 +24,12 @@ pub async fn commands_handler(bot: Bot, msg: Message, cmd: Command) -> anyhow::R
                 )
                 .await?;
             };
-            debug!("After registered");
+
             let (text, keyboard) = main_menu(user.id).await.map_err(|e| {
                 send_unexpected_error(&bot, &user, e.to_string());
                 anyhow::anyhow!("")
             })?;
-            debug!("After main_menu");
+
             send_message_with_buttons(&bot, &user, &text, &keyboard);
 
             bot_clone.delete_message(user.id, msg_id).await?;

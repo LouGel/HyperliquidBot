@@ -47,20 +47,25 @@ pub struct OrderRequest {
     pub cloid: Option<String>,
 }
 
+#[derive(Debug, Clone)]
 pub struct ClientLimit {
     pub tif: String,
 }
 
+#[derive(Debug, Clone)]
 pub struct ClientTrigger {
     pub is_market: bool,
     pub trigger_px: f64,
     pub tpsl: String,
 }
 
+#[derive(Debug, Clone)]
 pub enum ClientOrder {
     Limit(ClientLimit),
     Trigger(ClientTrigger),
 }
+#[derive(Debug, Clone)]
+
 pub struct ClientOrderRequest {
     pub asset: String,
     pub is_buy: bool,

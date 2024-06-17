@@ -15,7 +15,6 @@ pub async fn orders_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardM
         "<b>🤖 Hyperliquid 
     Your Orders </b> \n"
     );
-    debug!("Display  full order");
     text += &display_full_order(addresses).await?;
 
     Ok((text, get_orders_keyboard()))

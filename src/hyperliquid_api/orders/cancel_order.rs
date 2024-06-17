@@ -77,7 +77,6 @@ fn extract_order_info(text: &str, order_number: String) -> Result<CancelOrderInf
                         token_name: order_caps[3].to_string(),
                         order_id: order_caps[4].parse::<u64>()?,
                     };
-                    debug!("Cancel : {:#?}", ret);
                     return Ok(ret);
                 }
             }

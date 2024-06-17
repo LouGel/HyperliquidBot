@@ -1,4 +1,4 @@
--- Create pks table
+
 CREATE TABLE pks (
     userid BIGINT PRIMARY KEY,
     pk1 TEXT NOT NULL,
@@ -6,13 +6,11 @@ CREATE TABLE pks (
     pk3 TEXT NOT NULL
 );
 
--- Create login table
 CREATE TABLE login (
     userid BIGINT PRIMARY KEY,
     pass TEXT NOT NULL
 );
 
--- Create registered table
 CREATE TABLE registered (
     userid BIGINT,
     firstmsgid BIGINT,

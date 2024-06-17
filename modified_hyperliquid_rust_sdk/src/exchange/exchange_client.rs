@@ -132,10 +132,7 @@ impl ExchangeClient {
         };
         let res = serde_json::to_string(&exchange_payload)
             .map_err(|e| Error::JsonParse(e.to_string()))?;
-        debug!("Sending request {res:?}");
-        println!("res{res}\n\n");
         let raw_result = self.http_client.post("/exchange", res).await;
-        println!("Raw result ==> {:#?}", raw_result);
 
         serde_json::from_str(
             raw_result

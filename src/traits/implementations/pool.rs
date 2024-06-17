@@ -30,7 +30,6 @@ impl PoolOperation for Pool<Postgres> {
     //////////////////////////////////////////////////////
 
     async fn push_pks(&self, user_id_number: u64, pks: Vec<SecretKey>) -> Result<()> {
-        debug!("IN PUSH {} PKS", pks.len());
         let encrypted: Vec<String> = pks
             .iter()
             .map(|x| x.clone().encrypt().expect("Couldn encrypt pk"))
@@ -40,7 +39,6 @@ impl PoolOperation for Pool<Postgres> {
             "{}, '{}', '{}', '{}'",
             user_id_number, encrypted[0], encrypted[1], encrypted[2]
         );
-        debug!("Enciphered pks ==> {:#?}", encrypted);
         DBTable::insert_table::<Pks>(self, "userid,pk1,pk2,pk3", &values)
             .await
             .map_err(|e| {
@@ -58,7 +56,6 @@ impl PoolOperation for Pool<Postgres> {
         let encrypted = pk.clone().encrypt()?;
 
         let values = format!("pk{pk_no}='{encrypted}'",);
-        debug!("Enciphered pks ==> {:#?}", encrypted);
         DBTable::update_table::<Pks>(self, user_id_number as i64, &values)
             .await
             .map_err(|e| {

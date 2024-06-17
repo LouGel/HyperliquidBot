@@ -12,7 +12,7 @@ use teloxide::prelude::*;
 
 pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> {
     if let Some(callback_function) = q.data.as_deref() {
-        debug!("Callback : {} activates", callback_function);
+        debug!("Callback : {} activated", callback_function);
         if !callback_function.contains(DEAD_CALLBACK) {
             let opts: Vec<&str> = callback_function.split('_').collect();
 
