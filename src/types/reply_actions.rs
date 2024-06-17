@@ -14,7 +14,7 @@ pub struct SetPasswd {
 #[derive(Clone, Debug)]
 pub struct OrderNo {
     // pub wallet_index: usize,
-    pub no: String,
+    pub no: u32,
 }
 #[derive(Clone, Default, Debug)]
 pub enum CancelOrderStep {

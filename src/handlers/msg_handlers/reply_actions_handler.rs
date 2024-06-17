@@ -69,7 +69,7 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
         ReplyAction::CancelOrder(step, msg) => {
             match step.clone() {
                 CancelOrderStep::AnswerOrderNo(no) => {
-                    match cancel_from_menu(&user, &msg.text, no.no).await {
+                    match cancel_from_menu(&user, &msg.text, no.no.to_string()).await {
                         Ok(resp) => send_message(bot, &user, &resp),
                         Err(e) => send_error(bot, &user, &format!("{}", e.to_string())),
                     }

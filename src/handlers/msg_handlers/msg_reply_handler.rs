@@ -74,20 +74,23 @@ pub fn message_handler_reply(
 
         ReplyAction::CancelOrder(step, message_from) => match step.clone() {
             CancelOrderStep::AskForOrderNo => {
-                let order_no = msg_text.clone();
-                let new_action = ReplyAction::CancelOrder(
-                    CancelOrderStep::AnswerOrderNo(OrderNo { no: order_no }),
-                    message_from,
-                );
-
-                if !is_passwd_set(user_id_number) {
-                    tokio::spawn(async move {
-                        handle_send_tx_action(new_action, &bot, user_from).await
-                    });
-                } else {
-                    tokio::spawn(
-                        async move { ask_for_password(&bot, &user_from, new_action).await },
+                if let Ok(order_no) = msg_text.parse::<u32>() {
+                    let new_action = ReplyAction::CancelOrder(
+                        CancelOrderStep::AnswerOrderNo(OrderNo { no: order_no }),
+                        message_from,
                     );
+
+                    if !is_passwd_set(user_id_number) {
+                        tokio::spawn(async move {
+                            handle_send_tx_action(new_action, &bot, user_from).await
+                        });
+                    } else {
+                        tokio::spawn(async move {
+                            ask_for_password(&bot, &user_from, new_action).await
+                        });
+                    }
+                } else {
+                    send_error(&bot, &user_from, "You need to select the number after No")
                 }
             }
             CancelOrderStep::AnswerOrderNo(_) => {
