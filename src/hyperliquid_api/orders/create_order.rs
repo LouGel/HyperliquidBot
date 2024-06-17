@@ -16,7 +16,7 @@ pub async fn order_from_menu(
 ) -> Result<String> {
     let (wallet_index, order) = get_wallet_index_and_order_from_markup(&menu).await?;
     let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_index)?;
-
+    debug!("Wallet addres {}", pk.to_address());
     let str = pk.to_hex_string();
     let exchange_client = ExchangeClient::new(
         None,
@@ -59,7 +59,15 @@ async fn get_wallet_index_and_order_from_markup(
             .get_value_from_callback_fct(PRICE_WANTED)
             .unwrap_or("0.0".to_owned())
             .parse()?,
-        false => client.fetch_price_for_token(&name).await?.parse::<f64>()?,
+        false => {
+            let mut price = client.fetch_price_for_token(&name).await?.parse::<f64>()?;
+            if is_buy {
+                price *= 1.02
+            } else {
+                price *= 0.98
+            };
+            format_sz(price, token.sz_decimals).parse()?
+        }
     };
 
     let pre_sz: f64 = keyboard
@@ -84,7 +92,7 @@ async fn get_wallet_index_and_order_from_markup(
         cloid: None,
         order_type,
     };
-    // info!("Order {:#?}", order);
+    info!("Order {:#?}", order);
     Ok((wallet_index, order))
 }
 

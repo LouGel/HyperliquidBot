@@ -8,7 +8,7 @@ use crate::types::*;
 use crate::utils::*;
 use anyhow::anyhow;
 use ethers_core::k256::elliptic_curve::SecretKey;
-use orders_to_make_menu::spawn_order_menu_from_keyboard;
+use orders_to_make_menu::modify_order_menu_from_keyboard;
 use teloxide::prelude::*;
 use teloxide_core::types::*;
 
@@ -151,7 +151,7 @@ fn handle_custom_setters(
             let input = input.clone();
             tokio::spawn(async move {
                 // &format!("{desired_token} ({price_usd}$) ✏️");
-                spawn_order_menu_from_keyboard(
+                modify_order_menu_from_keyboard(
                     &bot,
                     &user,
                     msg_id,

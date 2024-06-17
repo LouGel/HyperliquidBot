@@ -4,8 +4,11 @@ use crate::handlers::{
     dynamic_menus_handler, msg_handlers::reply_action_handler, simple_action_handler,
     simple_menus_handler,
 };
-use crate::orders_to_make_menu::spawn_order_menu_from_keyboard;
-use crate::{send_alert, send_unexpected_callback_function_error, InlineKeyBoardHandler};
+use crate::orders_to_make_menu::modify_order_menu_from_keyboard;
+use crate::{
+    send_alert, send_message_with_buttons, send_unexpected_callback_function_error,
+    InlineKeyBoardHandler,
+};
 use crate::{send_unexpected_error, types::*};
 use chrono::prelude::*;
 use teloxide::prelude::*;
@@ -81,6 +84,8 @@ pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> 
     Ok(())
 }
 
+use crate::modify_message_with_buttons;
+use crate::orders_menu;
 use teloxide::types::User;
 
 pub async fn refresh_menu(bot: &Bot, user: User, menu: Vec<&str>, msg: Message) {
@@ -90,10 +95,17 @@ pub async fn refresh_menu(bot: &Bot, user: User, menu: Vec<&str>, msg: Message) 
         match menu[1] {
             MAKE_ORDERS_MENU => {
                 if let Ok(_) = keyboard.get_which_order_type() {
-                    spawn_order_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned(), None)
+                    modify_order_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned(), None)
                         .await
                 } else {
                     send_unexpected_error(&bot, &user, "Error, menu dont have type".to_owned());
+                }
+            }
+            MANAGE_ORDERS_MENU => {
+                if let Ok((text, keyboard)) = orders_menu(&user).await {
+                    modify_message_with_buttons(bot, &user, msg.id, &text, &keyboard)
+                } else {
+                    send_unexpected_callback_function_error(&bot, &user, &menu.join("_"))
                 }
             }
             _ => send_unexpected_callback_function_error(&bot, &user, &menu.join("_")),

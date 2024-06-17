@@ -65,7 +65,7 @@ pub async fn make_orders_menu_from_keyboard(
     Ok((text, keyboard))
 }
 
-pub async fn spawn_order_menu_from_keyboard(
+pub async fn modify_order_menu_from_keyboard(
     bot: &Bot,
     user: &User,
     msg_id: MessageId,
@@ -102,7 +102,8 @@ async fn format_limit_buy_message(
         "<b>🛠WAGMI Limit Buy Order</b>\n
 Buy tokens on HyperLiquid with advanced options:
 Use Buy Limit to purchase when a token's price drops and set the duration for your purchase settings to stay active!\n
-⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY\n
+<i>(If you have open buy orders, your USD are considered locked 🔒)</i>
 {balances}"
     ))
 }
@@ -112,28 +113,31 @@ async fn format_buy_message(addresses: Vec<Address>, token: String) -> anyhow::R
     Ok(format!(
         "<b>🛠WAGMI Buy Tokens </b>\n
 Buy tokens on HyperLiquid with market orders !\n
-⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY\n
+<i>(If you have open buy orders, your USD are considered locked 🔒)</i>
 {balances}"
     ))
 }
 
 async fn format_limit_sell_message(addresses: Vec<Address>) -> anyhow::Result<String> {
-    let balances = display_full_balance(addresses).await?;
+    let balances = display_full_balance(addresses, false).await?;
     Ok(format!(
         "<b>🛠WAGMI Limit Sell Order</b>\n
 Sell tokens on HyperLiquid with advanced options:
 Use Sell Limit to purchase when a token's price drops and set the duration for your purchase settings to stay active!\n 
-⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY\n
+<i>(If you have open sell orders, your Tokens are considered locked 🔒)\n</i>
 {balances}"
     ))
 }
 
 async fn format_sell_message(addresses: Vec<Address>) -> anyhow::Result<String> {
-    let balances = display_full_balance(addresses).await?;
+    let balances = display_full_balance(addresses, false).await?;
     Ok(format!(
         "<b>🛠WAGMI Sell Tokens </b>\n
-        Sell tokens on HyperLiquid with market orders !\n
-        ⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+Sell tokens on HyperLiquid with market orders !\n
+⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY\n
+<i>(If you have open sell orders, your Tokens are considered locked 🔒)\n</i>
         {balances}"
     ))
 }
@@ -166,16 +170,14 @@ pub fn get_order_keyboard(
         vec![get_refresh_button(MAKE_ORDERS_MENU)],
         vec![wallet_title],
         wallet_buttons,
-        vec![
-            InlineKeyboardButton::callback(
-                &format!("AMOUNT IN {token_str}"),
-                &format!("{DEAD_CALLBACK}"),
-            ),
-            InlineKeyboardButton::callback(
-                &format!("{amount_str} ✏️"),
-                &format!("{REPLY_ACT}_{MAKE_ORDERS_MENU}_{AMOUNT_PLAIN}"),
-            ),
-        ],
+        vec![InlineKeyboardButton::callback(
+            &format!("AMOUNT IN {token_str}"),
+            &format!("{DEAD_CALLBACK}"),
+        )],
+        vec![InlineKeyboardButton::callback(
+            &format!("{amount_str} ✏️"),
+            &format!("{REPLY_ACT}_{MAKE_ORDERS_MENU}_{AMOUNT_PLAIN}"),
+        )],
     ];
 
     if is_limit {

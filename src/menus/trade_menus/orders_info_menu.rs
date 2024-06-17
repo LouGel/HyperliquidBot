@@ -1,6 +1,6 @@
 use crate::handlers::constants_callbacks::*;
 use crate::types::hyperliquid_client::HyperLiquidNetwork;
-use crate::{get_faq_button, get_main_menu_button};
+use crate::{get_faq_button, get_main_menu_button, get_refresh_button};
 use crate::{globals::*, vec_3_p_keys_to_address};
 use anyhow::Result;
 use ethers::types::Address;
@@ -70,5 +70,6 @@ pub fn get_orders_keyboard() -> InlineKeyboardMarkup {
             "Cancel order",
             &format!("{REPLY_ACT}_{CANCEL_ORDER}"),
         )],
+        vec![get_refresh_button(MANAGE_ORDERS_MENU)],
     ])
 }

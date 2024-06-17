@@ -36,6 +36,7 @@ pub async fn cancel_from_menu(user: &User, text: &str, order_number: String) -> 
     let resp = exchange_client.cancel(cancel, None).await?;
     get_data_from_hyperliquid_response(resp)
 }
+use hyperliquid_rust_sdk::ExchangeDataStatus;
 pub fn get_data_from_hyperliquid_response(resp: ExchangeResponseStatus) -> Result<String> {
     let data = match resp {
         ExchangeResponseStatus::Ok(s) => s.data,
@@ -43,7 +44,13 @@ pub fn get_data_from_hyperliquid_response(resp: ExchangeResponseStatus) -> Resul
     };
     if let Some(d) = data {
         match d.statuses.get(0) {
-            Some(d) => Ok(format!("{:?}", d)),
+            Some(d) => match d {
+                ExchangeDataStatus::Success => Ok(format!("Order Succeed")),
+                ExchangeDataStatus::WaitingForFill => Ok(format!("Order created")),
+                ExchangeDataStatus::Filled(_) => Ok(format!("Order filled")),
+                ExchangeDataStatus::Error(e) => Err(anyhow!("{}", e)),
+                _ => Err(anyhow!("Unexpected error, fata status : {:?}", d)),
+            },
             None => Err(anyhow!("no status in data".to_owned())),
         }
     } else {
