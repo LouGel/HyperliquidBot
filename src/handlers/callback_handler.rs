@@ -6,7 +6,7 @@ use crate::handlers::{
 };
 use crate::orders_to_make_menu::modify_order_menu_from_keyboard;
 use crate::{
-    send_alert, send_message_with_buttons, send_unexpected_callback_function_error,
+    balance_menu, send_alert, send_message_with_buttons, send_unexpected_callback_function_error,
     InlineKeyBoardHandler,
 };
 use crate::{send_unexpected_error, types::*};
@@ -101,8 +101,16 @@ pub async fn refresh_menu(bot: &Bot, user: User, menu: Vec<&str>, msg: Message) 
                     send_unexpected_error(&bot, &user, "Error, menu dont have type".to_owned());
                 }
             }
+
             MANAGE_ORDERS_MENU => {
                 if let Ok((text, keyboard)) = orders_menu(&user).await {
+                    modify_message_with_buttons(bot, &user, msg.id, &text, &keyboard)
+                } else {
+                    send_unexpected_callback_function_error(&bot, &user, &menu.join("_"))
+                }
+            }
+            BALANCES_MENU => {
+                if let Ok((text, keyboard)) = balance_menu(&user).await {
                     modify_message_with_buttons(bot, &user, msg.id, &text, &keyboard)
                 } else {
                     send_unexpected_callback_function_error(&bot, &user, &menu.join("_"))

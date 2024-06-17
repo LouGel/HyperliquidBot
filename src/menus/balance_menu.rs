@@ -1,5 +1,6 @@
 use std::fmt::format;
 
+use crate::handlers::constants_callbacks::BALANCES_MENU;
 use crate::types::hyperliquid_client::HyperLiquidNetwork;
 use crate::{get_faq_button, get_main_menu_button};
 use crate::{globals::*, vec_3_p_keys_to_address};
@@ -72,13 +73,10 @@ pub async fn display_token_balance(addresses: Vec<Address>, token: String) -> Re
 
     Ok(ret)
 }
-
+use crate::get_refresh_button;
 pub fn get_balance_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         vec![get_main_menu_button(), get_faq_button()],
-        // vec![InlineKeyboardButton::callback(
-        //     "Add Token",
-        //     &format!("{REPLY_ACT}_{SET_TOKEN_DB}"),
-        // )],
+        vec![get_refresh_button(BALANCES_MENU)],
     ])
 }
