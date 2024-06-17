@@ -1,8 +1,6 @@
 use crate::types::hyperliquid_client::*;
 use crate::types::Action;
-use crate::types::*;
-use anyhow::{anyhow, Result};
-use ethers::prelude::*;
+use anyhow::anyhow;
 use ethers_core::k256::elliptic_curve::SecretKey;
 use ethers_core::k256::Secp256k1;
 use lazy_static::lazy_static;
@@ -16,13 +14,13 @@ use teloxide::types::UserId;
 
 // pub async fn get_token_list() -> Result {}
 
-pub fn toggle_test() {
-    let mut network = NETWORK.lock().unwrap();
-    *network = match *network {
-        HyperLiquidNetwork::Mainnet => HyperLiquidNetwork::Testnet,
-        HyperLiquidNetwork::Testnet => HyperLiquidNetwork::Mainnet,
-    };
-}
+// pub fn toggle_test() {
+//     let mut network = NETWORK.lock().unwrap();
+//     *network = match *network {
+//         HyperLiquidNetwork::Mainnet => HyperLiquidNetwork::Testnet,
+//         HyperLiquidNetwork::Testnet => HyperLiquidNetwork::Mainnet,
+//     };
+// }
 
 lazy_static! {
 

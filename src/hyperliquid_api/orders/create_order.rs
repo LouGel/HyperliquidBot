@@ -1,25 +1,23 @@
-use std::str::FromStr;
-
-use crate::handlers::constants_callbacks::{AMOUNT_PLAIN, TOKEN_NAME};
-use crate::handlers::constants_callbacks::{PRICE_WANTED, WALLET};
-use crate::traits::OmnixString;
+use super::get_data_from_hyperliquid_response;
+use crate::handlers::constants_callbacks::{AMOUNT_PLAIN, PRICE_WANTED, TOKEN_NAME, WALLET};
+use crate::traits::{OmnixString, PKeyHandler};
 use crate::{globals::*, InlineKeyBoardHandler};
+use anyhow::{anyhow, Result};
 use hyperliquid_rust_sdk::{
-    BaseUrl, ClientCancelRequest, ClientLimit, ClientOrder, ClientOrderRequest, ClientTrigger,
-    ExchangeClient, ExchangeDataStatus, ExchangeResponseStatus,
+    BaseUrl, ClientLimit, ClientOrder, ClientOrderRequest, ClientTrigger, ExchangeClient,
 };
-
-use crate::traits::PKeyHandler;
-use anyhow::Result;
-use ethers::abi::token;
-use ethers_signer::wallet;
-
+use regex::Regex;
 use teloxide::prelude::*;
 use teloxide::types::*;
-use url::Url;
-pub async fn order_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup) -> Result<()> {
-    let (wallet_no, order) = get_wallet_no_and_order_from_markup(&menu)?;
-    let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_no)?;
+
+pub async fn order_from_menu(
+    _bot: &Bot,
+    user: &User,
+    menu: InlineKeyboardMarkup,
+) -> Result<String> {
+    let (wallet_index, order) = get_wallet_index_and_order_from_markup(&menu)?;
+    let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_index)?;
+
     let str = pk.to_hex_string();
     let exchange_client = ExchangeClient::new(
         None,
@@ -31,33 +29,12 @@ pub async fn order_from_menu(_bot: &Bot, user: &User, menu: InlineKeyboardMarkup
     )
     .await
     .unwrap();
+
     let response = exchange_client.order(order, None).await?;
-    let response = match response {
-        ExchangeResponseStatus::Ok(exchange_response) => exchange_response,
-        ExchangeResponseStatus::Err(e) => {
-            return Err(anyhow::anyhow!("error with exchange response: {e}"))
-        }
-    };
-    let status = response.data.unwrap().statuses[0].clone();
-    let oid = match status {
-        ExchangeDataStatus::Filled(order) => order.oid,
-        ExchangeDataStatus::Resting(order) => order.oid,
-        _ => panic!("Error: {status:?}"),
-    };
-    Ok(())
+    get_data_from_hyperliquid_response(response)
 }
-use regex::Regex;
-pub fn extract_price_usd(text: &str) -> Result<f64> {
-    let re = Regex::new(r"\(([\d\.]+)\$\)")?;
-    if let Some(caps) = re.captures(text) {
-        if let Some(price_match) = caps.get(1) {
-            let price_usd: f64 = price_match.as_str().parse()?;
-            return Ok(price_usd);
-        }
-    }
-    Err(anyhow::anyhow!("Price not found in the string"))
-}
-fn get_wallet_no_and_order_from_markup(
+
+fn get_wallet_index_and_order_from_markup(
     keyboard: &InlineKeyboardMarkup,
 ) -> Result<(usize, ClientOrderRequest)> {
     let pren_name = keyboard.get_result_from_callback_fct(TOKEN_NAME)?;
@@ -66,10 +43,11 @@ fn get_wallet_no_and_order_from_markup(
         .split(" ")
         .nth(0)
         .ok_or(anyhow::anyhow!("Couldn't get token name {pren_name}"))?;
-    let wallet = keyboard
+    let wallet_index = keyboard
         .get_result_from_checked_callback_fct(WALLET)?
         .clean_and_parse_to_usize()?
-        - 1;
+        .checked_sub(1)
+        .ok_or(anyhow!(" Wrong wallet index"))?;
 
     let (is_buy, is_limit) = keyboard.get_which_order_type()?;
     let token = TOKEN_LIST.get_result(name)?;
@@ -106,7 +84,6 @@ fn get_wallet_no_and_order_from_markup(
             })
         }
     };
-    debug!("sz = {}", sz);
 
     let order = ClientOrderRequest {
         asset,
@@ -117,5 +94,16 @@ fn get_wallet_no_and_order_from_markup(
         cloid: None,
         order_type,
     };
-    Ok((wallet, order))
+    Ok((wallet_index, order))
+}
+
+pub fn extract_price_usd(text: &str) -> Result<f64> {
+    let re = Regex::new(r"\(([\d\.]+)\$\)")?;
+    if let Some(caps) = re.captures(text) {
+        if let Some(price_match) = caps.get(1) {
+            let price_usd: f64 = price_match.as_str().parse()?;
+            return Ok(price_usd);
+        }
+    }
+    Err(anyhow::anyhow!("Price not found in the string"))
 }

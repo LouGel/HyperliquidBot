@@ -9,27 +9,16 @@ pub fn vec_3_p_keys_to_address(private_keys: &Vec<SecretKey>) -> Vec<Address> {
 
 pub trait AddressForBot {
     fn to_full_string(&self) -> String;
-    fn to_ethers_bytes(&self) -> ethers::types::Bytes;
+    // fn to_ethers_bytes(&self) -> ethers::types::Bytes;
 }
 impl AddressForBot for H160 {
     fn to_full_string(&self) -> String {
         format!("{:#x}", self)
     }
-    fn to_ethers_bytes(&self) -> ethers::types::Bytes {
-        Bytes::from(hex::decode(self.to_full_string().replace("0x", "")).unwrap())
-    }
+    // fn to_ethers_bytes(&self) -> ethers::types::Bytes {
+    //     Bytes::from(hex::decode(self.to_full_string().replace("0x", "")).unwrap())
+    // }
 }
-
-// pub fn vec_3_p_keys_to_full_address(private_keys: &Vec<SecretKey>) -> Vec<String> {
-//     private_keys
-//         .into_iter()
-//         .map(|x| {
-//             let mut ret = String::new();
-//             write!(ret, "{:X}", &x.to_address()).unwrap();
-//             ret.to_lowercase()
-//         })
-//         .collect()
-// }
 
 pub fn generate_pks() -> Vec<SecretKey> {
     let mut keys = Vec::new();

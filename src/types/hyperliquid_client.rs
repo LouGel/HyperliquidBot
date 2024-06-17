@@ -1,14 +1,10 @@
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
-use teloxide::types::OrderInfo;
-// use std::error::Error;
-use crate::{globals::NETWORK, TOKEN_LIST};
-// use crate::hyperliquid_api::fetch_orders::OpenOrdersResponse;
 use crate::AddressForBot;
-use anyhow::{anyhow, Error, Result};
+use crate::{globals::NETWORK, TOKEN_LIST};
+use anyhow::{anyhow, Result};
 use ethers::types::Address;
 use futures::future::join_all;
-use serde::*;
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
 struct RequestWithUser {
@@ -29,6 +25,7 @@ pub struct OpenOrder {
 }
 
 pub enum HyperLiquidNetwork {
+    #[allow(dead_code)]
     Testnet,
     Mainnet,
 }
@@ -80,18 +77,19 @@ impl TokenInfo {
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 struct UniverseInfo {
-    name: String,
-    tokens: Vec<u32>,
-    index: u32,
-    is_canonical: bool,
+    pub name: String,
+    pub tokens: Vec<u32>,
+    pub index: u32,
+    pub is_canonical: Option<bool>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SpotMetaResponse {
     pub tokens: Vec<TokenInfo>,
+    #[allow(dead_code)]
     universe: Vec<UniverseInfo>,
 }
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -151,24 +149,6 @@ impl HyperLiquidClient {
             ))
         }
     }
-    pub async fn cancel_order(&self) -> Result<SpotMetaResponse> {
-        let client = Client::new();
-        let request_body = SpotMetaRequest {
-            request_type: "spotMeta".to_string(),
-        };
-
-        let response = client.post(&self.url).json(&request_body).send().await?;
-
-        if response.status().is_success() {
-            let spot_meta = response.json::<SpotMetaResponse>().await?;
-            Ok(spot_meta)
-        } else {
-            Err(anyhow::anyhow!(
-                "Failed to fetch spotMeta: {}",
-                response.status()
-            ))
-        }
-    }
 
     pub async fn fetch_spot_balance_for_addresses(
         self,
@@ -186,7 +166,6 @@ impl HyperLiquidClient {
     }
     pub async fn fetch_price_for_token(self, token: &str) -> Result<String> {
         let token = TOKEN_LIST.get_result(token)?;
-        let token_pair_name = token.usdc_pair_name().ok_or(anyhow!("Wrong token used"));
 
         let client = Client::new();
         let prices = self.fetch_prices(&client).await?;
@@ -291,8 +270,6 @@ impl HyperLiquidClient {
             .await?;
 
         if response.status().is_success() {
-            // debug!("{:#?}", response.json().await?);
-            // todo!()
             let orders = response.json::<Vec<OpenOrder>>().await?;
             Ok(orders)
         } else {

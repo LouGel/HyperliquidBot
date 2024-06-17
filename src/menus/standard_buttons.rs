@@ -35,28 +35,6 @@ pub fn get_wallet_from_title_and_buttons(
         ],
     )
 }
-
-// pub fn get_wallet_to_title_buttons_and_custom(
-//     menu: &str,
-// ) -> (
-//     InlineKeyboardButton,
-//     Vec<InlineKeyboardButton>,
-//     InlineKeyboardButton,
-// ) {
-//     (
-//         InlineKeyboardButton::callback("RECEIVER", DEAD_CALLBACK),
-//         vec![
-//             InlineKeyboardButton::callback("✅ W 1", &format!("{DYN_ACTION}_{menu}_{RECEIVER}_1")),
-//             InlineKeyboardButton::callback("W 2", &format!("{DYN_ACTION}_{menu}_{RECEIVER}_2")),
-//             InlineKeyboardButton::callback("W 3", &format!("{DYN_ACTION}_{menu}_{RECEIVER}_3")),
-//         ],
-//         InlineKeyboardButton::callback(
-//             "Custom",
-//             &format!("{REPLY_ACT}_{menu}_{RECEIVER}_{CUSTOM}"),
-//         ),
-//     )
-// }
-
 pub fn get_replace_import_keyboard(menu: &str) -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         vec![
@@ -67,33 +45,3 @@ pub fn get_replace_import_keyboard(menu: &str) -> InlineKeyboardMarkup {
         vec![get_close_button()],
     ])
 }
-// pub fn expert_keyboard_markup(menu_from: &str) -> Vec<Vec<InlineKeyboardButton>> {
-//     vec![
-//         vec![InlineKeyboardButton::callback("SLIPPAGE", DEAD_CALLBACK)],
-//         vec![
-//             InlineKeyboardButton::callback(
-//                 "✅ 10%",
-//                 &format!("{DYN_ACTION}_{menu_from}_{SLIPPAGE}_10"),
-//             ),
-//             InlineKeyboardButton::callback(
-//                 "15%",
-//                 &format!("{DYN_ACTION}_{menu_from}_{SLIPPAGE}_15"),
-//             ),
-//             InlineKeyboardButton::callback(
-//                 "25%",
-//                 &format!("{DYN_ACTION}_{menu_from}_{SLIPPAGE}_25"),
-//             ),
-//         ],
-//         vec![
-//             InlineKeyboardButton::callback(
-//                 "50%",
-//                 &format!("{DYN_ACTION}_{menu_from}_{SLIPPAGE}_50"),
-//             ),
-//             InlineKeyboardButton::callback(
-//                 "75%",
-//                 &format!("{DYN_ACTION}_{menu_from}_{SLIPPAGE}_75"),
-//             ),
-//             InlineKeyboardButton::callback("Custom", &format!("{REPLY_ACT}_{SLIPPAGE}_{CUSTOM}")),
-//         ],
-//     ]
-// }

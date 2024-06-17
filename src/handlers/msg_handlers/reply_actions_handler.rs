@@ -70,12 +70,8 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
             match step.clone() {
                 CancelOrderStep::AnswerOrderNo(no) => {
                     match cancel_from_menu(&user, &msg.text, no.no).await {
-                        Ok(()) => send_message(bot, &user, "Order cancelled successfully"),
-                        Err(e) => send_unexpected_error(
-                            bot,
-                            &user,
-                            format!("Error canceling order {:?} -> {}", step, e.to_string()),
-                        ),
+                        Ok(resp) => send_message(bot, &user, &resp),
+                        Err(e) => send_error(bot, &user, &format!("{}", e.to_string())),
                     }
                 }
                 CancelOrderStep::AskForOrderNo => send_unexpected_error(
@@ -87,17 +83,15 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
         }
 
         ReplyAction::ExecuteOrder(msg_info) => {
-            if let Err(e) = order_from_menu(bot, &user, msg_info.keyboard).await {
-                send_error(
+            match order_from_menu(bot, &user, msg_info.keyboard).await {
+                Err(e) => send_error(
                     bot,
                     &user,
                     &("Error in Order from menu :".to_owned() + &e.to_string()),
-                )
-            } else {
-                send_message(bot, &user, "Order Created")
-            }
+                ),
+                Ok(resp) => send_message(bot, &user, &resp),
+            };
         }
-
         x => send_unexpected_error(
             bot,
             &user,

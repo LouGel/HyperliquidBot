@@ -1,10 +1,7 @@
-// pub mod abis;
-// pub use abis::*;
-pub mod format;
 pub mod hash;
-pub use format::*;
+
 pub mod registration_check;
-// pub use hash::*;
+
 pub use registration_check::*;
 pub mod keys_and_addresses;
 pub mod password;

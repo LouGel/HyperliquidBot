@@ -32,30 +32,7 @@ impl DBTable {
 
         Ok(rows)
     }
-    pub async fn get_table_by_user_id<T>(
-        pool: &Pool<Postgres>,
-        user_id_number: i64,
-        _info_name: &str,
-    ) -> Result<T>
-    where
-        T: for<'r> FromRow<'r, PgRow> + Send + Sync + Unpin,
-    {
-        let full_name = std::any::type_name::<T>();
-        let table_name = full_name.split("::").last().unwrap().to_lowercase();
-        info!("table_name ==> {}", table_name);
 
-        let query = format!(
-            "SELECT * FROM {} WHERE userid = {}",
-            table_name, user_id_number
-        );
-
-        let rows = sqlx::query_as::<_, T>(&query)
-            .bind(user_id_number)
-            .fetch_one(pool)
-            .await?;
-
-        Ok(rows)
-    }
     pub async fn insert_table<T>(
         pool: &Pool<Postgres>,
         infos_name: &str,
@@ -204,4 +181,29 @@ pub struct Registered {
 //     pub selectamount: f64,
 //     pub selectslippage: f64,
 //     pub gasestimation: String,
+// }
+
+// pub async fn get_table_by_user_id<T>(
+//     pool: &Pool<Postgres>,
+//     user_id_number: i64,
+//     _info_name: &str,
+// ) -> Result<T>
+// where
+//     T: for<'r> FromRow<'r, PgRow> + Send + Sync + Unpin,
+// {
+//     let full_name = std::any::type_name::<T>();
+//     let table_name = full_name.split("::").last().unwrap().to_lowercase();
+//     info!("table_name ==> {}", table_name);
+
+//     let query = format!(
+//         "SELECT * FROM {} WHERE userid = {}",
+//         table_name, user_id_number
+//     );
+
+//     let rows = sqlx::query_as::<_, T>(&query)
+//         .bind(user_id_number)
+//         .fetch_one(pool)
+//         .await?;
+
+//     Ok(rows)
 // }

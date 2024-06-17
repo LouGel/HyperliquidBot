@@ -1,15 +1,13 @@
 use crate::globals::DEAD_CALLBACK;
 use crate::handlers::constants_callbacks::*;
-use crate::orders_to_make_menu::spawn_order_menu_from_keyboard;
-
-use teloxide::prelude::*;
-
 use crate::handlers::{
     dynamic_menus_handler, msg_handlers::reply_action_handler, simple_action_handler,
     simple_menus_handler,
 };
+use crate::orders_to_make_menu::spawn_order_menu_from_keyboard;
 use crate::{send_unexpected_callback_function_error, InlineKeyBoardHandler};
 use crate::{send_unexpected_error, types::*};
+use teloxide::prelude::*;
 
 pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> {
     if let Some(callback_function) = q.data.as_deref() {
@@ -81,14 +79,13 @@ pub async fn refresh_menu(bot: &Bot, user: User, menu: Vec<&str>, msg: Message) 
     if let Some(keyboard) = msg.reply_markup() {
         match menu[1] {
             MAKE_ORDERS_MENU => {
-                if let Ok((is_buy, is_limit)) = keyboard.get_which_order_type() {
+                if let Ok(_) = keyboard.get_which_order_type() {
                     spawn_order_menu_from_keyboard(bot, &user, msg.id, keyboard.to_owned(), None)
                         .await
                 } else {
                     send_unexpected_error(&bot, &user, "Error, menu dont have type".to_owned());
                 }
             }
-
             _ => send_unexpected_callback_function_error(&bot, &user, &menu.join("_")),
         }
     } else {

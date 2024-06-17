@@ -1,26 +1,13 @@
 {
-  "cursor": null,
-  "page": 0,
-  "page_size": 100,
-  "result": [
-    {
-      "token_address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-      "symbol": "ETH",
-      "name": "Ether",
-      "logo": null,
-      "thumbnail": null,
-      "decimals": 18,
-      "balance": "8345575963962616",
-      "possible_spam": false,
-      "verified_contract": true,
-      "balance_formatted": "0.008345575963962616",
-      "usd_price": 3494.911493002269,
-      "usd_price_24hr_percent_change": -2.328466734074685,
-      "usd_price_24hr_usd_change": -81.37785149991075,
-      "usd_value": 29.167049352176434,
-      "usd_value_24hr_usd_change": -0.6791450414765743,
-      "native_token": true,
-      "portfolio_percentage": 100
+  "status": "ok",
+  "response": {
+    "type": "cancel",
+    "data": {
+      "statuses": [
+        {
+          "error": "Order was never placed, already canceled, or filled. asset=10000"
+        }
+      ]
     }
-  ]
+  }
 }

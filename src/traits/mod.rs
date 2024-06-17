@@ -1,13 +1,11 @@
 pub mod implementations;
 pub mod inline_keyboard_markup;
 pub mod p_keys;
-pub mod tx_hash;
-pub use tx_hash::*;
+
 pub mod number;
 pub mod pool;
 pub mod strings;
-pub use number::*;
-// pub use implementations::*;
+
 pub use inline_keyboard_markup::*;
 pub use p_keys::*;
 pub use pool::*;

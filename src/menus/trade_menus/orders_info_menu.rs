@@ -26,25 +26,39 @@ pub async fn display_full_order(addresses: Vec<Address>) -> Result<String> {
     let mut ret = String::new();
     let balances = client.fetch_open_orders_for_addresses(&addresses).await?;
     for (i, wallet) in balances.iter().enumerate() {
-        let mut num = 0;
-        ret += &format!("\n<b>Wallet {}-------\n</b>", i + 1);
+        let mut num = 1;
+        ret += &format!("\n<b>Wallet {}:\n</b>", i + 1);
         let mut entered_loop = false;
+        let mut buy_orders = String::from("BUY: \n");
+        let mut sell_orders = String::from("SELL: \n");
         for orders in wallet.iter() {
             entered_loop = true;
-            let type_order = match orders.side.as_ref() {
-                "B" => "Buy",
-                "A" => "Sell",
-                _ => "Bizarre",
-            };
+
             let order_name = TOKEN_LIST.get_result(&orders.coin)?.name.clone();
-            ret += &format!(
-                "{}.{} {}[{}] at {} ({})  \n",
-                num, type_order, orders.sz, order_name, orders.limit_px, orders.oid,
+            let order_str = &format!(
+                "No {}: {} ${} at {}$ <i>oid({})</i>\n",
+                num,
+                orders.sz.trim_end_matches(".0").to_string(),
+                order_name,
+                orders.limit_px.trim_end_matches(".0").to_string(),
+                orders.oid,
             );
+            match orders.side.as_ref() {
+                "B" => buy_orders += &order_str,
+                "A" => sell_orders += &order_str,
+                x => warn!("{x} type of order fetched"),
+            };
             num += 1;
         }
         if !entered_loop {
             ret += &format!("<i>Empty</i>");
+        } else {
+            if buy_orders.contains("No") {
+                ret += &buy_orders
+            }
+            if sell_orders.contains("No") {
+                ret += &sell_orders
+            }
         }
     }
     Ok(ret)

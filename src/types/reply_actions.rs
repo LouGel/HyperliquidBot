@@ -63,14 +63,9 @@ pub enum ReplyAction {
     ImportWallet(ImportWallet),
     SetPasswd(SetPasswd), //... potentially other variants
     SetTokenName(MessageToReply),
-    SetAmountPlain(String, MessageToReply), //MessageId
-    //MessageId
-    SetDuration(MessageToReply),  //MessageId
-    Bridge(MessageToReply),       //MessageId
-    ExecuteOrder(MessageToReply), //MessageId
-    //MessageId
-    //MessageId
-    Transfer(MessageToReply),                     //MessageId
+    SetAmountPlain(String, MessageToReply),       //MessageId
+    SetDuration(MessageToReply),                  //MessageId
+    ExecuteOrder(MessageToReply),                 //MessageId
     CancelOrder(CancelOrderStep, MessageToReply), //MessageId
 }
 use crate::handlers::constants_callbacks::*;

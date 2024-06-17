@@ -1,5 +1,4 @@
 use super::constants_callbacks::*;
-use super::get_reply_markup_from_msg;
 use crate::bot::*;
 use crate::menus::*;
 use crate::orders_to_make_menu::make_orders_menu;
@@ -13,8 +12,6 @@ pub async fn simple_menus_handler(bot: &Bot, user: User, menu: Vec<&str>, msg: M
         SETTINGS_MENU => settings_menu().await,
         REPLACE_MENU => replace_wallet_menu(),
         IMPORT_MENU => import_wallet_menu(),
-        // BUY_MENU => buy_menu(user.id, None).await,
-        // SELL_MENU => sell_menu(&user).await,
         MANAGE_ORDERS_MENU => orders_menu(&user).await,
         MAKE_ORDERS_MENU => {
             if menu.len() > 3 {
@@ -24,7 +21,6 @@ pub async fn simple_menus_handler(bot: &Bot, user: User, menu: Vec<&str>, msg: M
                 return;
             }
         }
-
         BALANCES_MENU => balance_menu(&user).await,
         _ => {
             send_unexpected_callback_function_error(bot, &user, &menu.join("_"));

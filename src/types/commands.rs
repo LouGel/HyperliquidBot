@@ -7,4 +7,6 @@ use teloxide::utils::command::BotCommands;
 pub enum Command {
     #[command(description = "handle a start.")]
     Start,
+    #[command(description = "update_tokens.")]
+    UpdateTokens,
 }

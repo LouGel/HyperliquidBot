@@ -36,5 +36,5 @@ pub const MARKET: &str = "Market";
 // DIVERSE DATA
 pub const WALLET: &str = "Wallet";
 pub const CUSTOM: &str = "Custom";
-pub const MAX: &str = "Max";
+// pub const MAX: &str = "Max";
 pub const SHOW_PK: &str = "ShowPk";

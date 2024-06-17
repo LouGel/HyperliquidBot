@@ -1,6 +1,4 @@
 use crate::*;
-
-use crate::globals::TOKEN_LIST;
 use anyhow::Result;
 use sqlx::pool::Pool;
 use sqlx::Postgres;
@@ -11,7 +9,7 @@ pub async fn init_omni_bot() {
 
     init_pool(database_url).await;
     let pool = get_pool();
-    let amount_pks_table = pool.fetch_pks().await.expect("Unable to fetch pk");
+    pool.fetch_pks().await.expect("Unable to fetch pk");
 
     {
         let mut passwd_map = PASSWD.lock().unwrap();
@@ -37,7 +35,6 @@ pub async fn update_token_list() -> Result<()> {
 
     let spot_tokens = client.fetch_spot_meta().await?;
     let tokens = spot_tokens.tokens;
-    debug!("TOKENS : {:#?}", tokens);
     let mut token_map = TOKEN_LIST.lock().unwrap();
 
     for token in tokens {
@@ -49,6 +46,7 @@ pub async fn update_token_list() -> Result<()> {
             token_map.insert(pair, token_arc);
         }
     }
+    debug!("Tokens updated");
     Ok(())
 }
 
