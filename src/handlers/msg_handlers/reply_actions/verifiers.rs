@@ -2,7 +2,10 @@ use crate::TOKEN_LIST;
 
 pub fn is_good_amount_format(_text: &str, msg: &mut String) -> bool {
     match msg.parse::<f64>() {
-        Ok(num) => num > 0.0,
+        Ok(num) => {
+            *msg += " ✏️";
+            num > 0.0
+        }
         Err(_) => false,
     }
 }
