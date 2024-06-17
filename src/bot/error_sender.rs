@@ -11,9 +11,21 @@ pub fn send_error(bot: &Bot, user: &User, err_msg: &str) {
     tokio::spawn(async move {
         let _ = bot
             .send_message(user_id, format_err)
-            .parse_mode(ParseMode::Html)
+            .parse_mode(ParseMode::MarkdownV2)
             .await
             .map_err(|e| error!("Error {}", e));
+    });
+}
+pub fn send_alert(bot: &Bot, callback_id: String, err_msg: &str) {
+    let bot = bot.clone();
+
+    tokio::spawn(async move {
+        let _ = bot
+            .answer_callback_query(callback_id)
+            .show_alert(true)
+            .text("Lol")
+            .send()
+            .await;
     });
 }
 
@@ -25,6 +37,7 @@ pub fn send_unexpected_error(bot: &Bot, user: &User, error: String) {
         "⚠️ Unexpected Error: Retry or ask suppor with ref : {}:{:X}⚠️",
         user_id, aleatory
     );
+
     error!("Error no: {:X} for {user_id}. Value : \n {error}", aleatory);
     let bot = bot.clone();
     let user_id = user.id.clone();

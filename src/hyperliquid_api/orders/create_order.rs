@@ -4,9 +4,7 @@ use crate::traits::{OmnixString, PKeyHandler};
 use crate::HyperLiquidNetwork;
 use crate::{globals::*, InlineKeyBoardHandler};
 use anyhow::{anyhow, Result};
-use hyperliquid_rust_sdk::{
-    BaseUrl, ClientLimit, ClientOrder, ClientOrderRequest, ClientTrigger, ExchangeClient,
-};
+use hyperliquid_rust_sdk::{BaseUrl, ClientLimit, ClientOrder, ClientOrderRequest, ExchangeClient};
 
 use teloxide::prelude::*;
 use teloxide::types::*;

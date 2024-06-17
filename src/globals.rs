@@ -33,6 +33,8 @@ lazy_static! {
     pub static ref PASSWD: Arc<Mutex<HashMap<i64, String>>> = Arc::new(Mutex::new(HashMap::new()));
     pub static ref WALLETS_PKEY: Arc<Mutex<HashMap<i64, Vec<SecretKey<Secp256k1>>>>> =
         Arc::new(Mutex::new(HashMap::new()));
+    pub static ref REFRESH_RATE_PER_USER: Arc<Mutex<HashMap<UserId, u64>>> =
+        Arc::new(Mutex::new(HashMap::new()));
     pub static ref REPLY_ACTION: Arc<Mutex<HashMap<i64, Action>>> =
         Arc::new(Mutex::new(HashMap::new()));
 }
@@ -51,6 +53,21 @@ impl TOKEN_LIST {
             .get(token_name)
             .ok_or(anyhow!("Couldn't access TOKEN for user {}", token_name))?
             .clone())
+    }
+}
+impl REFRESH_RATE_PER_USER {
+    pub fn get_result(&self, user_id: UserId) -> anyhow::Result<u64> {
+        Ok(*self
+            .lock()
+            .map_err(|e| {
+                anyhow!(
+                    "Poison lock in REFRESH_RATE_PER_USER get for user{} --> {}",
+                    user_id.0,
+                    e.to_string()
+                )
+            })?
+            .get(&user_id)
+            .unwrap_or(&0_u64))
     }
 }
 
