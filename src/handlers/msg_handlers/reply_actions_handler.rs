@@ -10,7 +10,12 @@ use ethers_core::k256::elliptic_curve::SecretKey;
 use teloxide::prelude::*;
 use teloxide_core::types::*;
 
-pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyAction) {
+pub async fn reply_action_handler(
+    bot: &Bot,
+    callback_id: String,
+    user: User,
+    reply_action: ReplyAction,
+) {
     let user_id_no = user.id.0 as i64;
     let user_clone = user.clone();
     if let Some((msg_tosend, msg_reply)) = match reply_action.clone() {
@@ -48,7 +53,7 @@ pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyActi
             if is_passwd_set(user_id_no) {
                 ask_for_password(bot, &user, reply_action.clone()).await;
             } else {
-                handle_send_tx_action(reply_action.clone(), bot, user).await;
+                handle_send_tx_action(reply_action.clone(), Some(callback_id), bot, user).await;
             }
             None
         }
@@ -64,7 +69,12 @@ pub async fn reply_action_handler(bot: &Bot, user: User, reply_action: ReplyActi
     }
 }
 
-pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
+pub async fn handle_send_tx_action(
+    action: ReplyAction,
+    callback_id: Option<String>,
+    bot: &Bot,
+    user: User,
+) {
     match action.clone() {
         ReplyAction::CancelOrder(step, msg) => {
             match step.clone() {
@@ -84,11 +94,18 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
 
         ReplyAction::ExecuteOrder(msg_info) => {
             match order_from_menu(bot, &user, msg_info.keyboard).await {
-                Err(e) => send_error(
-                    bot,
-                    &user,
-                    &("Error in Order from menu :".to_owned() + &e.to_string()),
-                ),
+                Err(e) => {
+                    debug!("{}", e.to_string());
+                    if let Some(id) = callback_id {
+                        send_alert(bot, id, "Error in Order -> all data are not filled")
+                    } else {
+                        send_error(
+                            bot,
+                            &user,
+                            &format!("Error in Make Order: {}", e.to_string()),
+                        )
+                    }
+                }
                 Ok(resp) => {
                     if resp.contains("filled") {
                         send_message(bot, &user, "Market buy succeeded")

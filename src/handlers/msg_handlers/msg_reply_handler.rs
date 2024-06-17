@@ -82,7 +82,7 @@ pub fn message_handler_reply(
 
                     if !is_passwd_set(user_id_number) {
                         tokio::spawn(async move {
-                            handle_send_tx_action(new_action, &bot, user_from).await
+                            handle_send_tx_action(new_action, None, &bot, user_from).await
                         });
                     } else {
                         tokio::spawn(async move {
@@ -97,7 +97,7 @@ pub fn message_handler_reply(
                 if is_correct_password(user_id_number, msg_text.clone()) {
                     let reply_action_clone = ReplyAction::CancelOrder(step, message_from);
                     tokio::spawn(async move {
-                        handle_send_tx_action(reply_action_clone, &bot, user_from).await
+                        handle_send_tx_action(reply_action_clone, None, &bot, user_from).await
                     });
                 } else {
                     send_error(&bot, &user_from, "Invalid password retry the process");
@@ -125,7 +125,7 @@ pub fn message_handler_reply(
 
         x => {
             if is_correct_password(user_id_number, msg_text.clone()) {
-                tokio::spawn(async move { handle_send_tx_action(x, &bot, user_from).await });
+                tokio::spawn(async move { handle_send_tx_action(x, None, &bot, user_from).await });
             } else {
                 send_error(&bot, &user_from, "Invalid password retry the process");
             }

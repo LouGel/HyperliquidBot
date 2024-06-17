@@ -16,7 +16,9 @@ use globals::*;
 use handlers::{callback_handler, commands_handler, message_handler};
 use init::init_omni_bot;
 use menus::*;
+use rpassword::read_password;
 use std::env;
+use std::io::{self, Write};
 use std::sync::Arc;
 use teloxide::{prelude::*, types::ChatKind};
 use traits::*;
@@ -28,6 +30,10 @@ extern crate log;
 #[tokio::main]
 async fn main() {
     dotenv().ok();
+    print!("Please enter your encryption key: ");
+    io::stdout().flush().unwrap(); // Ensure the prompt is displayed
+    let encryption_key = read_password().unwrap();
+    env::set_var("SECRET_ENCRYPTION_KEY", encryption_key);
     pretty_env_logger::init_timed();
     info!("Checking env variables");
     check_env();

@@ -11,9 +11,16 @@ pub fn get_faq_button() -> InlineKeyboardButton {
 pub fn get_main_menu_button() -> InlineKeyboardButton {
     InlineKeyboardButton::callback("⏪ Main Menu", &format!("{SIMPLE_MENU}_{MAIN_MENU}"))
 }
+pub fn get_in_some_menu(where_to_go: &str) -> InlineKeyboardButton {
+    InlineKeyboardButton::callback("⏪ Back", &format!("{SIMPLE_MENU}_{where_to_go}"))
+}
 
 pub fn get_main_and_faq_banner() -> Vec<InlineKeyboardButton> {
     vec![get_main_menu_button(), get_faq_button()]
+}
+
+pub fn get_back_and_faq_banner(where_to_go: &str) -> Vec<InlineKeyboardButton> {
+    vec![get_in_some_menu(where_to_go), get_faq_button()]
 }
 
 pub fn get_close_button() -> InlineKeyboardButton {

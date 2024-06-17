@@ -1,6 +1,6 @@
 use crate::display_full_balance;
 use crate::display_token_balance;
-use crate::get_main_and_faq_banner;
+use crate::get_back_and_faq_banner;
 use crate::get_refresh_button;
 use crate::get_wallet_from_title_and_buttons;
 use crate::globals::*;
@@ -100,10 +100,10 @@ async fn format_limit_buy_message(
     let balances = display_token_balance(addresses, token).await?;
     Ok(format!(
         "<b>🛠WAGMI Limit Buy Order</b>\n
-        Buy tokens on HyperLiquid with advanced options:
-        Use Buy Limit to purchase when a token's price drops and set the duration for your purchase settings to stay active! 
-        ⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
-        {balances}"
+Buy tokens on HyperLiquid with advanced options:
+Use Buy Limit to purchase when a token's price drops and set the duration for your purchase settings to stay active!\n
+⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+{balances}"
     ))
 }
 
@@ -111,9 +111,9 @@ async fn format_buy_message(addresses: Vec<Address>, token: String) -> anyhow::R
     let balances = display_token_balance(addresses, token).await?;
     Ok(format!(
         "<b>🛠WAGMI Buy Tokens </b>\n
-        Buy tokens on HyperLiquid with market orders ! 
-        ⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
-        {balances}"
+Buy tokens on HyperLiquid with market orders !\n
+⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+{balances}"
     ))
 }
 
@@ -121,10 +121,10 @@ async fn format_limit_sell_message(addresses: Vec<Address>) -> anyhow::Result<St
     let balances = display_full_balance(addresses).await?;
     Ok(format!(
         "<b>🛠WAGMI Limit Sell Order</b>\n
-        Sell tokens on HyperLiquid with advanced options:
-        Use Sell Limit to purchase when a token's price drops and set the duration for your purchase settings to stay active! 
-        ⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
-        {balances}"
+Sell tokens on HyperLiquid with advanced options:
+Use Sell Limit to purchase when a token's price drops and set the duration for your purchase settings to stay active!\n 
+⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
+{balances}"
     ))
 }
 
@@ -132,7 +132,7 @@ async fn format_sell_message(addresses: Vec<Address>) -> anyhow::Result<String> 
     let balances = display_full_balance(addresses).await?;
     Ok(format!(
         "<b>🛠WAGMI Sell Tokens </b>\n
-        Sell tokens on HyperLiquid with market orders ! 
+        Sell tokens on HyperLiquid with market orders !\n
         ⚠️EDIT SETTINGS WITH A PEN (✏️) EMOJI ONLY
         {balances}"
     ))
@@ -162,7 +162,7 @@ pub fn get_order_keyboard(
             &format!("{buy_str} {limit_str}"),
             &format!("!{MAKE_ORDERS_MENU}_{buy_str}_{limit_str}"),
         )],
-        get_main_and_faq_banner(),
+        get_back_and_faq_banner(TRADE_MENU),
         vec![get_refresh_button(MAKE_ORDERS_MENU)],
         vec![wallet_title],
         wallet_buttons,
@@ -174,13 +174,14 @@ pub fn get_order_keyboard(
 
     if is_limit {
         let price_str = price.unwrap_or_else(|| "Price".to_owned());
-        keyboard.push(vec![
-            InlineKeyboardButton::callback(&format!("Price (in USD)"), DEAD_CALLBACK),
-            InlineKeyboardButton::callback(
-                &format!("{price_str} ✏️"),
-                &format!("{REPLY_ACT}_{MAKE_ORDERS_MENU}_{PRICE_WANTED}"),
-            ),
-        ]);
+        keyboard.push(vec![InlineKeyboardButton::callback(
+            &format!("PRICE (IN USD)"),
+            DEAD_CALLBACK,
+        )]);
+        keyboard.push(vec![InlineKeyboardButton::callback(
+            &format!("{price_str} ✏️"),
+            &format!("{REPLY_ACT}_{MAKE_ORDERS_MENU}_{PRICE_WANTED}"),
+        )]);
     }
     keyboard.push(vec![InlineKeyboardButton::callback(
         &format!("{desired_token} ({price_usd}$) ✏️"),

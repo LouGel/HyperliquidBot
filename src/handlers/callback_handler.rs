@@ -5,9 +5,7 @@ use crate::handlers::{
     simple_menus_handler,
 };
 use crate::orders_to_make_menu::spawn_order_menu_from_keyboard;
-use crate::{
-    send_alert, send_error, send_unexpected_callback_function_error, InlineKeyBoardHandler,
-};
+use crate::{send_alert, send_unexpected_callback_function_error, InlineKeyBoardHandler};
 use crate::{send_unexpected_error, types::*};
 use chrono::prelude::*;
 use teloxide::prelude::*;
@@ -20,12 +18,6 @@ pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> 
 
             let user = q.from.to_owned();
             if opts.len() > 1 {
-                bot.answer_callback_query(&q.id)
-                    .show_alert(true)
-                    .text("Lol")
-                    .send()
-                    .await?;
-
                 let msg_from = q
                     .clone()
                     .message
@@ -48,11 +40,11 @@ pub async fn callback_handler(bot: Bot, q: CallbackQuery) -> anyhow::Result<()> 
                         if let Ok(reply_action) =
                             ReplyAction::from_str(opts[1], &msg_from, opts.last().unwrap())
                         {
-                            reply_action_handler(&bot, user, reply_action).await;
+                            reply_action_handler(&bot, q.id, user, reply_action).await;
                         } else if let Ok(reply_action) =
                             ReplyAction::from_str(opts[2], &msg_from, opts.last().unwrap())
                         {
-                            reply_action_handler(&bot, user, reply_action).await;
+                            reply_action_handler(&bot, q.id, user, reply_action).await;
                         } else {
                             send_unexpected_error(
                                 &bot,

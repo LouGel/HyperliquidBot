@@ -18,12 +18,12 @@ pub fn send_error(bot: &Bot, user: &User, err_msg: &str) {
 }
 pub fn send_alert(bot: &Bot, callback_id: String, err_msg: &str) {
     let bot = bot.clone();
-
+    let format_err = format!("⚠️{err_msg}⚠️");
     tokio::spawn(async move {
         let _ = bot
             .answer_callback_query(callback_id)
             .show_alert(true)
-            .text("Lol")
+            .text(format_err)
             .send()
             .await;
     });

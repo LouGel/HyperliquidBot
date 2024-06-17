@@ -26,7 +26,8 @@ fn format_text_main_menu(
     balances_raw: Vec<Option<&Balance>>,
 ) -> anyhow::Result<String> {
     let mut text = format!(
-        "<b>🤖 WAGMI TRADING BOT</b> - Buy, sell and interact with HyperLiquidX spot ecosystem anywhere, anytime.\n\n\
+        "<b>🤖 WAGMI TRADING BOT</b>
+Buy, sell and interact with HyperLiquidX spot ecosystem anywhere, anytime.\n\n\
         <b>═══ Your Wallets ═══</b> \n\n\
         "
     );

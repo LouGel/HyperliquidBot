@@ -9,8 +9,8 @@ pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboard
     let pks = WALLETS_PKEY.get_result(user.id)?;
     let addresses = vec_3_p_keys_to_address(&pks);
     let mut text = format!(
-        "<b>🤖 Hyperliquid 
-    Your balances </b> \n"
+        "<b>🤖 Hyperliquid </b>
+<u>Your balances :</u> \n"
     );
 
     text += &display_full_balance(addresses).await?;
@@ -23,7 +23,7 @@ pub async fn display_full_balance(addresses: Vec<Address>) -> Result<String> {
     let mut ret = String::new();
     let balances = client.fetch_spot_balance_for_addresses(&addresses).await?;
     for (i, wallet) in balances.iter().enumerate() {
-        ret += &format!("\n<b>Wallet {i}-------\n</b>");
+        ret += &format!("\n<b>Wallet {}-------\n</b>", i + 1);
         let mut entered_loop = false;
         for balance in wallet.iter() {
             entered_loop = true;
@@ -46,7 +46,7 @@ pub async fn display_token_balance(addresses: Vec<Address>, token: String) -> Re
             Some(balance) => balance.total.clone(),
             None => "0".to_owned(),
         };
-        ret += &format!("W{i}: {bal}\n");
+        ret += &format!("W{}: {bal}\n", i + 1);
     }
 
     Ok(ret)
