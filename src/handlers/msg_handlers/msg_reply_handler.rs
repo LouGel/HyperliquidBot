@@ -90,7 +90,7 @@ pub fn message_handler_reply(
                         });
                     }
                 } else {
-                    send_error(&bot, &user_from, "You need to select the number after No")
+                    send_error(&bot, &user_from, "You need to write the number after No")
                 }
             }
             CancelOrderStep::AnswerOrderNo(_) => {

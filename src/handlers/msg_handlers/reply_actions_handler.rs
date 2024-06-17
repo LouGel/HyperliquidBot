@@ -89,7 +89,13 @@ pub async fn handle_send_tx_action(action: ReplyAction, bot: &Bot, user: User) {
                     &user,
                     &("Error in Order from menu :".to_owned() + &e.to_string()),
                 ),
-                Ok(resp) => send_message(bot, &user, &resp),
+                Ok(resp) => {
+                    if resp.contains("filled") {
+                        send_message(bot, &user, "Market buy succeeded")
+                    } else {
+                        send_message(bot, &user, &resp)
+                    }
+                }
             };
         }
         x => send_unexpected_error(
