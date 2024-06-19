@@ -14,7 +14,9 @@ pub async fn order_from_menu(
     user: &User,
     menu: InlineKeyboardMarkup,
 ) -> Result<String> {
-    let (wallet_index, order) = get_wallet_index_and_order_from_markup(&menu).await?;
+    let (wallet_index, order) = get_wallet_index_and_order_from_markup(&menu)
+        .await
+        .map_err(|e| anyhow::anyhow!("Datas in order are not set correctly {}", e.to_string()))?;
     let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_index)?;
     let str = pk.to_hex_string();
     let exchange_client = ExchangeClient::new(

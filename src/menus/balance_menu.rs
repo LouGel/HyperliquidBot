@@ -3,7 +3,7 @@ use crate::types::hyperliquid_client::HyperLiquidNetwork;
 use crate::{globals::*, vec_3_p_keys_to_address};
 use anyhow::Result;
 use ethers::types::Address;
-use std::collections::HashMap;
+// use std::collections::HashMap;
 use teloxide::{types::InlineKeyboardMarkup, types::User};
 
 pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
@@ -19,7 +19,7 @@ pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboard
     Ok((text, get_balance_keyboard()))
 }
 
-pub async fn display_full_balance(addresses: Vec<Address>, need_total: bool) -> Result<String> {
+pub async fn display_full_balance(addresses: Vec<Address>, _: bool) -> Result<String> {
     let client = HyperLiquidNetwork::get_client();
     let client_2 = HyperLiquidNetwork::get_client();
     let mut ret = String::new();
@@ -27,7 +27,6 @@ pub async fn display_full_balance(addresses: Vec<Address>, need_total: bool) -> 
         client.fetch_spot_balance_for_addresses(&addresses),
         client_2.fetch_prices()
     );
-    let mut hash_map: HashMap<String, f64> = HashMap::new();
 
     // let (prices, balances) = (prices?, balances?);
     let prices = prices?;
