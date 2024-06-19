@@ -45,7 +45,6 @@ pub async fn display_full_balance(addresses: Vec<Address>, need_total: bool) -> 
             let mut price = 0.0;
 
             for price_info in prices.iter() {
-                debug!("name : {}, coin : {}", price_info.name, balance.coin);
                 if price_info.name == balance.coin {
                     price = price_info.price.parse::<f64>()?;
                 }

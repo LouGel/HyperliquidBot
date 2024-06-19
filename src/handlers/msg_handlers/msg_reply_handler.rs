@@ -165,10 +165,7 @@ fn handle_custom_setters(
         message_to_reply
             .keyboard
             .change_text_where_callback_contains(callback_to_find, input);
-        debug!(
-            "Message keyboard -> {:?}, callback: {}",
-            message_to_reply.keyboard, callback_to_find
-        );
+
         modify_message_with_buttons(
             bot,
             user,

@@ -16,7 +16,6 @@ pub async fn order_from_menu(
 ) -> Result<String> {
     let (wallet_index, order) = get_wallet_index_and_order_from_markup(&menu).await?;
     let pk = WALLETS_PKEY.get_pk_for_index(user.id, wallet_index)?;
-    debug!("Wallet addres {}", pk.to_address());
     let str = pk.to_hex_string();
     let exchange_client = ExchangeClient::new(
         None,
@@ -57,8 +56,8 @@ async fn get_wallet_index_and_order_from_markup(
     let limit_px: f64 = match is_limit {
         true => keyboard
             .get_value_from_callback_fct(PRICE_WANTED)
-            .unwrap_or("0.0".to_owned())
-            .parse()?,
+            .ok_or(anyhow!("Could get price from limit menu"))?
+            .clean_and_parse_to_float()?,
         false => {
             let mut price = client.fetch_price_for_token(&name).await?.parse::<f64>()?;
             if is_buy {
@@ -73,7 +72,7 @@ async fn get_wallet_index_and_order_from_markup(
     let pre_sz: f64 = keyboard
         .get_value_from_callback_fct(AMOUNT_PLAIN)
         .ok_or(anyhow!("Could get amount from menu"))?
-        .parse()?;
+        .clean_and_parse_to_float()?;
     let sz = match is_buy {
         true => format_sz(pre_sz / limit_px, token.sz_decimals).parse::<f64>()?,
         false => pre_sz,

@@ -43,14 +43,14 @@ impl OmnixString for &str {
     //         Err(anyhow!("Value out of range"))
     //     }
     // }
-    // fn clean_and_parse_to_float(self) -> Result<f64> {
-    //     Ok(self
-    //         .chars()
-    //         .filter(|&c| c.is_digit(10) || c == '.')
-    //         .collect::<String>()
-    //         .parse::<f64>()
-    //         .map_err(|e| anyhow!("Error in  clean and parse :{}", e.to_string()))?)
-    // }
+    fn clean_and_parse_to_float(self) -> Result<f64> {
+        Ok(self
+            .chars()
+            .filter(|&c| c.is_digit(10) || c == '.')
+            .collect::<String>()
+            .parse::<f64>()
+            .map_err(|e| anyhow::anyhow!("Error in  clean and parse :{}", e.to_string()))?)
+    }
 
     // fn extract_hex_error_after_pattern(self, pattern: &str) -> Result<String> {
     //     if let Some(start) = self.find(pattern) {

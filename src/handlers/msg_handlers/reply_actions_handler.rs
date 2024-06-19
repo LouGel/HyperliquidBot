@@ -95,9 +95,8 @@ pub async fn handle_send_tx_action(
         ReplyAction::ExecuteOrder(msg_info) => {
             match order_from_menu(bot, &user, msg_info.keyboard).await {
                 Err(e) => {
-                    debug!("{}", e.to_string());
                     if let Some(id) = callback_id {
-                        send_alert(bot, id, "Error in Order -> all data are not filled")
+                        send_alert(bot, id, &format!("Error in Order ({e})"))
                     } else {
                         send_error(
                             bot,

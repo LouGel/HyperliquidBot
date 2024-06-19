@@ -57,9 +57,10 @@ fn process_new_private_key(
     let bot = bot.clone();
     let user_from = user_from.clone();
     let mut iw_struct = iw_struct.clone();
-    if is_ethereum_private_key(msg_text) {
+    let pk = msg_text.replace("0x", "");
+    if is_ethereum_private_key(&pk) {
         if !is_passwd_set(user_id_no) {
-            let pk_raw = hex::decode(msg_text).expect("Failed to decode hex string");
+            let pk_raw = hex::decode(pk).expect("Failed to decode hex string");
             let private_key: SecretKey<Secp256k1> =
                 SecretKey::from_slice(&pk_raw).expect("Failed to create SecretKey from slice");
             tokio::spawn(async move {
