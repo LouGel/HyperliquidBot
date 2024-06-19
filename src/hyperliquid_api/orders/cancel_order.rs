@@ -34,18 +34,25 @@ pub async fn cancel_from_menu(user: &User, text: &str, order_number: String) -> 
         oid: order_info.order_id,
     };
     let resp = exchange_client.cancel(cancel, None).await?;
-    get_data_from_hyperliquid_response(resp)
+    get_data_from_hyperliquid_response(resp, true)
 }
 use hyperliquid_rust_sdk::ExchangeDataStatus;
-pub fn get_data_from_hyperliquid_response(resp: ExchangeResponseStatus) -> Result<String> {
+pub fn get_data_from_hyperliquid_response(
+    resp: ExchangeResponseStatus,
+    is_cancel: bool,
+) -> Result<String> {
     let data = match resp {
         ExchangeResponseStatus::Ok(s) => s.data,
         ExchangeResponseStatus::Err(e) => return Err(anyhow!("{:?}", e)),
     };
+    let success_str = match is_cancel {
+        false => format!("Order Succeed"),
+        true => format!("Cancel Succeed"),
+    };
     if let Some(d) = data {
         match d.statuses.get(0) {
             Some(d) => match d {
-                ExchangeDataStatus::Success => Ok(format!("Order Succeed")),
+                ExchangeDataStatus::Success => Ok(success_str),
                 ExchangeDataStatus::WaitingForFill => Ok(format!("Order created")),
                 ExchangeDataStatus::Filled(_) => Ok(format!("Order filled")),
                 ExchangeDataStatus::Error(e) => Err(anyhow!("{}", e)),
@@ -69,7 +76,9 @@ struct CancelOrderInfo {
 
 fn extract_order_info(text: &str, order_number: String) -> Result<CancelOrderInfo> {
     let wallet_re = Regex::new(r"Wallet (\d+):")?;
-    let order_re = Regex::new(r"No (\d+): (\d+) \$([A-Z]+) at [\d.]+\$ oid\((\d+)\)")?;
+    let order_re = Regex::new(
+        r"No (\d+): (\d+) \$([A-Z]+) at [\d.]+\$ each for a TVL of [\d.]+\$  oid\((\d+)\)",
+    )?;
     let mut current_wallet = None;
 
     for line in text.lines() {

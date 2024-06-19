@@ -31,7 +31,7 @@ pub async fn order_from_menu(
     .unwrap();
 
     let response = exchange_client.order(order, None).await?;
-    get_data_from_hyperliquid_response(response)
+    get_data_from_hyperliquid_response(response, false)
 }
 
 async fn get_wallet_index_and_order_from_markup(
