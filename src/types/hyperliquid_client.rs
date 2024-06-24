@@ -95,10 +95,12 @@ pub struct SpotMetaResponse {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct DayData {
+    prev_day_px: String,
     day_ntl_vlm: String,
     mark_px: String,
     mid_px: String,
-    prev_day_px: String,
+    circulating_supply: String,
+    coin: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -129,6 +131,13 @@ pub struct TokenPrice {
 pub struct OpenOrdersResponse {
     pub orders: Vec<OpenOrder>,
 }
+
+// #[derive(Debug, Serialize, Deserialize)]
+// struct AssetCtxResponse {
+//     universe: Vec<Universe>,
+//     tokens: Vec<Token>,
+//     coinData: Vec<CoinData>,
+// }
 
 impl HyperLiquidClient {
     pub async fn fetch_spot_meta(&self) -> Result<SpotMetaResponse> {
@@ -200,6 +209,8 @@ impl HyperLiquidClient {
                         mark_px: "Nan".to_owned(),
                         mid_px: "Nan".to_owned(),
                         prev_day_px: "Nan".to_owned(),
+                        circulating_supply: "Nan".to_owned(),
+                        coin: "Nan".to_string(),
                     },
                 };
                 ret.push(TokenPrice {
