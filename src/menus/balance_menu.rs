@@ -1,9 +1,14 @@
+use crate::get_back_and_faq_banner;
+use crate::get_refresh_button;
 use crate::handlers::constants_callbacks::BALANCES_MENU;
+use crate::handlers::constants_callbacks::TRADE_MENU;
+use crate::types::hyperliquid_client::Balance;
 use crate::types::hyperliquid_client::HyperLiquidNetwork;
 use crate::{globals::*, vec_3_p_keys_to_address};
 use anyhow::Result;
+use ethers::abi::Hash;
 use ethers::types::Address;
-// use std::collections::HashMap;
+use std::collections::HashMap;
 use teloxide::{types::InlineKeyboardMarkup, types::User};
 
 pub async fn balance_menu(user: &User) -> anyhow::Result<(String, InlineKeyboardMarkup)> {
@@ -28,8 +33,12 @@ pub async fn display_full_balance(addresses: Vec<Address>, _: bool) -> Result<St
         client_2.fetch_prices()
     );
 
-    // let (prices, balances) = (prices?, balances?);
-    let prices = prices?;
+    let mut price_map: HashMap<String, String> = HashMap::new();
+
+    for price in prices? {
+        let token = TOKEN_LIST.get_result(&price.name)?;
+        price_map.insert(token.name.clone(), price.price);
+    }
 
     for (i, wallet) in balances?.iter().enumerate() {
         ret += &format!("\n<b>Wallet {}-------\n</b>", i + 1);
@@ -41,16 +50,18 @@ pub async fn display_full_balance(addresses: Vec<Address>, _: bool) -> Result<St
             );
             let bal_free = bal_total - bal_locked;
 
-            let mut price = 0.0;
-
-            for price_info in prices.iter() {
-                if price_info.name == balance.coin {
-                    price = price_info.price.parse::<f64>()?;
-                }
-            }
             let total_price = match balance.coin.as_ref() {
                 "USDC" => bal_total,
-                _ => bal_total * price,
+                _ => {
+                    let price: f64 = price_map
+                        .get(&balance.coin)
+                        .ok_or(anyhow::anyhow!(
+                            "Error : need to fetch price for token {}",
+                            balance.coin
+                        ))?
+                        .parse()?;
+                    bal_total * price
+                }
             };
             entered_loop = true;
             ret += &format!(
@@ -67,7 +78,6 @@ pub async fn display_full_balance(addresses: Vec<Address>, _: bool) -> Result<St
     }
     Ok(ret)
 }
-use crate::types::hyperliquid_client::Balance;
 pub async fn display_token_balance(addresses: Vec<Address>, token: String) -> Result<String> {
     let client = HyperLiquidNetwork::get_client();
     let mut ret = format!("\n<b>Your {token} balance</b>\n");
@@ -90,9 +100,7 @@ pub async fn display_token_balance(addresses: Vec<Address>, token: String) -> Re
 
     Ok(ret)
 }
-use crate::get_back_and_faq_banner;
-use crate::get_refresh_button;
-use crate::handlers::constants_callbacks::TRADE_MENU;
+
 pub fn get_balance_keyboard() -> InlineKeyboardMarkup {
     InlineKeyboardMarkup::new(vec![
         get_back_and_faq_banner(TRADE_MENU),
