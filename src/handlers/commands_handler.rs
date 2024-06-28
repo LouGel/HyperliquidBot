@@ -30,9 +30,9 @@ pub async fn commands_handler(bot: Bot, msg: Message, cmd: Command) -> anyhow::R
             bot.delete_message(user.id, msg_id).await?;
             return Ok(());
         }
-        Command::Balances => trade_menu().await,
+        Command::Balances => balance_menu(&user).await,
         Command::Settings => settings_menu().await,
-        Command::TradeMenu => settings_menu().await,
+        Command::TradeMenu => trade_menu().await,
     };
     match menu {
         Err(e) => send_unexpected_error(&bot, &user, e.to_string()),
