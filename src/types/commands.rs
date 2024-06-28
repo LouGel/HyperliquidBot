@@ -5,8 +5,14 @@ use teloxide::utils::command::BotCommands;
     description = "These commands are supported:"
 )]
 pub enum Command {
-    #[command(description = "handle a start.")]
+    #[command(description = "Handle a Start.")]
     Start,
-    #[command(description = "update_tokens.")]
+    #[command(description = "Update tokens list.")]
     UpdateTokens,
+    #[command(description = "Trade Menu")]
+    TradeMenu,
+    #[command(description = "Wallets settngs")]
+    Settings,
+    #[command(description = "Get Balances")]
+    Balances,
 }

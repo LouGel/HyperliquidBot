@@ -6,7 +6,6 @@ use crate::types::hyperliquid_client::Balance;
 use crate::types::hyperliquid_client::HyperLiquidNetwork;
 use crate::{globals::*, vec_3_p_keys_to_address};
 use anyhow::Result;
-use ethers::abi::Hash;
 use ethers::types::Address;
 use std::collections::HashMap;
 use teloxide::{types::InlineKeyboardMarkup, types::User};

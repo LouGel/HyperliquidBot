@@ -8,7 +8,6 @@ mod menus;
 mod traits;
 mod types;
 mod utils;
-
 use bot::*;
 use dotenv::dotenv;
 use errors::check_env;
@@ -18,6 +17,7 @@ use init::init_omni_bot;
 use menus::*;
 use std::env;
 use std::sync::Arc;
+use teloxide::utils::command::BotCommands;
 use teloxide::{prelude::*, types::ChatKind};
 use traits::*;
 use types::*;
@@ -40,6 +40,8 @@ async fn main() {
     info!("Bot instanciation");
     warn!("Bot instanciation");
     let bot = Bot::from_env();
+    let commands = Command::bot_commands();
+    bot.set_my_commands(commands).await.unwrap();
     init_omni_bot().await;
     // Here we create a dependancy map : first branch take message (Comand ex:\start , and simple ones) , second is the callback handler
     let handler = dptree::entry()

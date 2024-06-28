@@ -1,6 +1,8 @@
+use crate::init::update_token_list;
 use crate::types::hyperliquid_client::*;
 use crate::types::Action;
 use anyhow::anyhow;
+use chrono::Utc;
 use ethers_core::k256::elliptic_curve::SecretKey;
 use ethers_core::k256::Secp256k1;
 use lazy_static::lazy_static;
@@ -11,16 +13,6 @@ use std::{
     sync::{Arc, Mutex},
 };
 use teloxide::types::UserId;
-
-// pub async fn get_token_list() -> Result {}
-
-// pub fn toggle_test() {
-//     let mut network = NETWORK.lock().unwrap();
-//     *network = match *network {
-//         HyperLiquidNetwork::Mainnet => HyperLiquidNetwork::Testnet,
-//         HyperLiquidNetwork::Testnet => HyperLiquidNetwork::Mainnet,
-//     };
-// }
 
 lazy_static! {
 
@@ -35,6 +27,8 @@ lazy_static! {
         Arc::new(Mutex::new(HashMap::new()));
     pub static ref REFRESH_RATE_PER_USER: Arc<Mutex<HashMap<UserId, u64>>> =
         Arc::new(Mutex::new(HashMap::new()));
+    pub static ref REFRESH_TOKEN_LIST: Arc<Mutex<u64>> =
+        Arc::new(Mutex::new(0));
     pub static ref REPLY_ACTION: Arc<Mutex<HashMap<i64, Action>>> =
         Arc::new(Mutex::new(HashMap::new()));
 }
@@ -53,6 +47,21 @@ impl TOKEN_LIST {
             .get(token_name)
             .ok_or(anyhow!("Couldn't access TOKEN for user {}", token_name))?
             .clone())
+    }
+    pub async fn refresh(&self) -> anyhow::Result<()> {
+        let time_now = Utc::now().timestamp() as u64;
+
+        let time_gap: u64 = time_now - *REFRESH_TOKEN_LIST.lock().unwrap();
+        if time_gap > REFRESH_TOKEN_LIST_LIMIT {
+            *REFRESH_TOKEN_LIST.lock().unwrap() = time_now;
+            update_token_list().await?;
+        } else {
+            return Err(anyhow!(
+                "Token refresh time not exceeded: {} seconds remaining",
+                REFRESH_TOKEN_LIST_LIMIT - time_gap
+            ));
+        };
+        Ok(())
     }
 }
 impl REFRESH_RATE_PER_USER {
@@ -117,3 +126,4 @@ macro_rules! address {
 }
 
 pub const DEAD_CALLBACK: &str = "!";
+pub const REFRESH_TOKEN_LIST_LIMIT: u64 = 5;

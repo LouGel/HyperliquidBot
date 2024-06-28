@@ -1,40 +1,43 @@
-use crate::init::update_token_list;
-use crate::menus::main_menu;
+use crate::is_registered;
+use crate::menus::*;
 use crate::types::Command;
 use crate::utils::create_user;
-use crate::{is_registered, send_unexpected_error};
+use crate::{bot::*, TOKEN_LIST};
 use teloxide::prelude::*;
 
 use super::get_user_from_msg;
-use crate::bot::send_message_with_buttons;
 
 pub async fn commands_handler(bot: Bot, msg: Message, cmd: Command) -> anyhow::Result<()> {
     let msg_id = msg.id;
     let user = get_user_from_msg(&msg)?;
 
-    let bot_clone = bot.clone();
-
-    match cmd {
+    let menu = match cmd {
         Command::Start => {
             if !is_registered(&user.id) {
-                create_user(&msg).await;
-                bot.send_message(
-                    user.id,
-                    "Successfully registered (or some other success message)",
-                )
-                .await?;
+                if let None = create_user(&msg).await {
+                    send_unexpected_error(&bot, &user, "Error with registration".to_owned());
+                    return Err(anyhow::anyhow!("Error with registration"));
+                }
+                bot.send_message(user.id, "Successfully registered").await?;
             };
-
-            let (text, keyboard) = main_menu(user.id).await.map_err(|e| {
-                send_unexpected_error(&bot, &user, e.to_string());
-                anyhow::anyhow!("")
-            })?;
-
-            send_message_with_buttons(&bot, &user, &text, &keyboard);
-
-            bot_clone.delete_message(user.id, msg_id).await?;
+            main_menu(user.id).await
         }
-        Command::UpdateTokens => update_token_list().await?,
+        Command::UpdateTokens => {
+            match TOKEN_LIST.refresh().await {
+                Ok(()) => send_message(&bot, &user, "Token list refreshed"),
+                Err(e) => send_error(&bot, &user, &e.to_string()),
+            };
+            bot.delete_message(user.id, msg_id).await?;
+            return Ok(());
+        }
+        Command::Balances => trade_menu().await,
+        Command::Settings => settings_menu().await,
+        Command::TradeMenu => settings_menu().await,
+    };
+    match menu {
+        Err(e) => send_unexpected_error(&bot, &user, e.to_string()),
+        Ok((text, keyboard)) => send_message_with_buttons(&bot, &user, &text, &keyboard),
     }
+    delete_message(&bot, &user, &msg_id);
     Ok(())
 }
