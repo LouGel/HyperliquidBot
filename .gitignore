@@ -18,3 +18,4 @@ Cargo.lock
 file.log
 res_perp.json
 test.json
+*log*
